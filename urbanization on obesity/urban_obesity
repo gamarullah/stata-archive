@@ -1,0 +1,440 @@
+** Urbanization on Obesity **
+
+*==============================================================================*
+*************************
+// MACRO DIRECTORY //
+*************************
+clear
+set more off
+cd "E:\stata"
+	global log "E:\Google Drive\My Papers\Migration and Obesity\"
+	global data "E:\stata\data"
+	global output "E:\Google Drive\My Papers\Migration and Obesity\estimation"
+
+//DATA//
+ * IFLS 5 *
+	global ifls5hh "E:\IFLS\IFLS5\Household_Survey"
+	global ifls5cf "E:\IFLS\IFLS5\Community_Survey"
+
+ * IFLS 4 *
+	global ifls4hh "E:\IFLS\IFLS4\Household_Survey"
+	global ifls4cf "E:\IFLS\IFLS4\Community_Survey"
+
+ * IFLS 3 *
+	global ifls3hh "E:\IFLS\IFLS3\Household_Survey"
+	global ifls3cf "E:\IFLS\IFLS3\Community_Survey"
+
+ * IFLS 2 *
+	global ifls2hh "E:\IFLS\IFLS2\Household_Survey"
+	global ifls2cf "E:\IFLS\IFLS2\Community_Survey"
+
+ * IFLS 1 *
+	global ifls1hh "E:\IFLS\IFLS1\Household_Survey"
+	global ifls1cf "E:\IFLS\IFLS1\Community_Survey"
+
+* IFLS East 2012 *
+	global iflsehh "E:\IFLS\IFLSE12\Household_Survey"
+	global iflsecf "E:\IFLS\IFLSE12\Community_Survey"
+
+*==============================================================================*
+*=================================*
+************** 2007 ***************
+*=================================*
+** EXPENDITURE **
+use $data\IFLS_Expenditure\pce07nom, clear
+keep hhid07 pce lnpce
+		lab var pce "Per capita expenditure 2007"
+		lab var lnpce "Log of per capita expenditure 2007"
+	ren pce pce07
+	ren lnpce lnpce07
+tempfile pce07nom
+save `pce07nom'
+
+* BOOK K *
+* Section AR *
+use $ifls4hh\bk_ar1, clear
+duplicates drop pidlink, force
+keep pidlink hhid07
+tempfile ar1_07
+save `ar1_07'
+
+* Section SC
+use $ifls4hh\bk_sc, clear
+
+** Rural/Urban
+gen urban=1 if sc05==1
+	replace urban=0 if sc05!=1
+gen rural=1 if urban==0
+	replace rural=0 if urban==1
+		lab var urban "Live in Urban in 2007"
+		lab var rural "Live in Rural in 2007"
+
+keep hhid07 rural urban
+	ren * *07
+	ren hhid* hhid07
+
+
+merge 1:m hhid07 using `ar1_07'
+	drop if _merge!=3
+	drop _merge
+merge m:1 hhid07 using `pce07nom'
+	drop if _merge!=3
+	drop _merge
+order pidlink
+tempfile ifls4
+save `ifls4'
+
+*=================================*
+************** 2014 ***************
+*=================================*
+* BOOK K *
+* Section AR *
+* AR1 *
+use $ifls5hh\bk_ar1, clear
+
+** Age in 2014
+gen age=ar09
+gen agesq=age^2
+		lab var age "Age in 2014"
+		lab var agesq "Age in 2014 squared"
+
+** Education
+gen edu=ar16
+recode edu (1 = 1)(2 11 72 = 2)(3 4 12 73 = 3)(5 6 15 74 = 4)(60 = 5)(9 13 61 = 6) ///
+(62 = 7)(63 = 8)(10 14 17 90 = 10)(95 98 99 = .)
+	replace edu=1 if edu==2 & ar17!=7
+	replace edu=2 if edu==3 & ar17!=7
+	replace edu=3 if edu==4 & ar17!=7
+	replace edu=4 if edu==5 & ar17!=7
+	replace edu=4 if edu==6 & ar17!=7
+	replace edu=6 if edu==7 & ar17!=7
+	replace edu=7 if edu==8 & ar17!=7
+recode edu (5 6 7 8 = 6)
+
+tab edu, gen(educ)
+		lab var educ1 "No education"
+		lab var educ2 "Elementary school"
+		lab var educ3 "Junior high school"
+		lab var educ4 "Senior high school"
+		lab var educ5 "University/Diploma"
+		lab var educ6 "Other education"
+	ren educ1 noeduc
+	ren educ2 elementary
+	ren educ3 juniorschool
+	ren educ4 seniorschool
+	ren educ5 university
+	ren educ6 other_educ
+
+** Ethnicity
+gen ethnic=ar15d
+
+** Household Size
+gen HHMstat=ar01a
+	drop if inlist(HHMstat,0,3)
+gen help=ar01a
+recode help (0 3 = 0)(1 2 5 11 = 1)
+bys hhid14: egen hhsize=count(pid14) if help==1
+		lab var hhsize "Household size"
+gen hhsizesq=hhsize^2
+		lab var hhsizesq "Household size squared"
+drop help
+drop if hhsize==.
+
+** Marital Status
+gen marstat=ar13
+recode marstat (1 4 5 = 1)(2 3 = 2)(6 8 9 =.)
+tab marstat, gen(marr)
+	ren marr1 notmarried
+	ren marr2 married
+		lab var notmarried "Marital status: not married"
+		lab var married "Marital status: married"
+
+** Father's ID
+gen fid=ar10
+		lab var fid "Father ID"
+
+** Mother's ID
+gen mid=ar11
+		lab var mid "Mother ID"
+
+** Religion
+gen religion=ar15
+	recode religion (95 99 =.)
+tab religion, gen (rel)
+	ren rel1 islam
+		lab var islam "Religion: Islam"
+	ren rel2 protestant
+		lab var protestant "Religion: Protestant"
+	ren rel3 catholic
+		lab var catholic "Religion: Catholic"
+	ren rel4 hinduism
+		lab var hinduism "Religion: Hinduism"
+	ren rel5 buddhism
+		lab var buddhism "Religion: Buddhism"
+	ren rel6 konghucu
+		lab var konghucu "Religion: Konghucu"
+
+** Sex
+gen male=1 if ar07==1
+	replace male=0 if male==.
+gen female=1 if male==0
+	replace female=0 if male==1
+		lab var male ".... is male"
+		lab var female ".... is female"
+
+keep pidlink hhid14 pid14 age-female
+tempfile ar1_14
+save `ar1_14'
+
+
+* Section SC *
+* SC1*
+use $ifls5hh\bk_sc1, clear
+
+** Rural/Urban
+gen urban14=1 if sc05==1
+	replace urban14=0 if sc05!=1
+gen rural14=1 if urban14==0
+	replace rural14=0 if urban14==1
+		lab var urban14 "Live in Urban in 2014"
+		lab var rural14 "Live in Rural in 2014"
+gen distance=sc21x
+gen distancer=sc21
+
+keep hhid14 rural14 urban14 distance distancer
+tempfile sc1_14
+save `sc1_14'
+
+
+*====================*
+* BOOK 3A *
+* Section TK *
+* TK1 *
+use $ifls5hh\b3a_tk1, clear
+
+** work status
+gen workstat=tk01
+	recode workstat (4 5 7 95 = 0)(1 2 = 1)
+tab workstat, gen(job)
+		lab var job1 "Actively working or looking for a job"
+		lab var job2 "Attending school"
+		lab var job3 "Other activities"
+	ren job1 working
+	ren job2 schooling
+	ren job3 notwork
+
+keep pidlink hhid14 pid14 workstat working schooling notwork
+tempfile tk1_14
+save `tk1_14'
+
+
+* Section TR *
+use $ifls5hh\b3a_tr, clear
+
+/*
+** are you vegetarian?
+gen vegetarian=1 if tr20==1
+replace vegetarian=0 if tr20==3
+lab var vegetarian ".... is vegetarian"
+
+keep pidlink hhid14 pid14 vegetarian
+tempfile tr_14
+save `tr_14'
+*/
+
+* BOOK 3B *
+
+
+*====================*
+* BOOK US *
+* Section US *
+use $ifls5hh\bus_us, clear
+
+** Weight
+drop if inlist(us06x,3,7,9)
+gen weight=us06
+		lab var weight "Weight (Kg)"
+
+** Height
+drop if inlist(us04x,3,7,9)
+gen height=us04/100
+		lab var height "Height (m)"
+
+** BMI
+gen BMI=weight/(height^2)
+		lab var BMI "Body Mass Index (kg/m2)"
+
+keep pidlink hhid14 pid14 weight height BMI
+
+
+*******************
+*===== MERGE =====*
+*******************
+merge 1:1 hhid14 pid14 using `ar1_14'
+	drop if _merge!=3
+	drop _merge
+merge m:1 hhid14 using `sc1_14'
+	drop if _merge!=3
+	drop _merge
+merge 1:1 hhid14 pid14 using `tk1_14'
+	drop if _merge!=3
+	drop _merge
+merge 1:1 pidlink using `ifls4'
+	drop if _merge!=3
+	drop _merge
+order pidlink hhid07 hhid14 pid14
+sort hhid14 pid14
+
+*** Father's education ***
+	by hhid14: gen fatheredu=edu[fid]
+	tab fatheredu, gen(educ)
+		lab var educ1 "Father: No education"
+		lab var educ2 "Father: Elementary school"
+		lab var educ3 "Father: Junior high school"
+		lab var educ4 "Father: Senior high school"
+		lab var educ5 "Father: University/diploma"
+		lab var educ6 "Father: Other education"
+	ren educ1 f_noeduc
+	ren educ2 f_elementary
+	ren educ3 f_juniorschool
+	ren educ4 f_seniorschool
+	ren educ5 f_university
+	ren educ6 f_othereduc
+
+*** Mother's education ***
+	by hhid14: gen motheredu=edu[mid]
+	tab motheredu, gen(educ)
+		lab var educ1 "Mother: No education"
+		lab var educ2 "Mother: Elementary school"
+		lab var educ3 "Mother: Junior high school"
+		lab var educ4 "Mother: Senior high school"
+		lab var educ5 "Mother: University"
+		lab var educ6 "Mother: Other education"
+	ren educ1 m_noeduc
+	ren educ2 m_elementary
+	ren educ3 m_juniorschool
+	ren educ4 m_seniorschool
+	ren educ5 m_university
+	ren educ6 m_othereduc
+	
+** Age group
+gen age1=inrange(age,15,24)
+		lab var age1 "Age 15-24"
+gen age2=inrange(age,25,34)
+		lab var age2 "Age 25-34"
+gen age3=inrange(age,35,44)
+		lab var age3 "Age 35-44"
+gen age4=inrange(age,45,54)
+		lab var age4 "Age 45-54"
+gen age5=inrange(age,55,64)
+		lab var age5 "Age 55-64"
+gen age6=1 if age>=65
+	recode age6 .=0
+		lab var age6 "Age >65"
+	
+gen age_group=0 if age1==1
+	replace age_group=1 if age2==1
+	replace age_group=2 if age3==1
+	replace age_group=3 if age4==1
+	replace age_group=4 if age5==1
+	replace age_group=5 if age6==1
+		lab var age_group "Age by group"
+	label define age_group 0 "0. Age 15-24", add
+	label define age_group 1 "1. Age 25-34", add
+	label define age_group 2 "2. Age 35-44", add
+	label define age_group 3 "3. Age 45-54", add
+	label define age_group 4 "4. Age 55-64", add
+	label define age_group 5 "5. Age >65", add
+
+** Fat
+gen fatm=BMI
+	recode fatm (0/17.99999 = 0)(18/24.99999 = 1)(25/27 = 2)
+	replace fatm=3 if fatm>27
+		lab var fatm "BMI for male"
+gen fatf=BMI
+	recode fatf (0/16.99999 = 0)(17/22.99999 = 1)(23/27 = 2)
+	replace fatf=3 if fatf>27
+		lab var fatf "BMI for female"
+
+** Obesity
+gen obesity=2 if BMI>27
+	replace obesity=1 if male==1 & fatm==2
+	replace obesity=1 if female==1 & fatf==2
+	replace obesity=0 if obesity==.
+		label define obesity 0 "0. Normal", add
+		label define obesity 1 "1. Light obesity", add
+		label define obesity 2 "2. High Obesity", add	
+			lab var obesity "Obesity level"
+
+*** dummy
+gen obesity_d=obesity
+	recode obesity_d (0 1 = 0)(2 = 1)
+	lab var obesity_d "Obesity dummy"
+
+** Urbanization
+gen mig=0 if rural07==1 & rural14==1
+	replace mig=1 if urban07==1 & urban14==1
+	replace mig=2 if rural07==1 & urban14==1
+	replace mig=3 if urban07==1 & rural14==1
+		label define mig 0 "0. Always live in rural", add
+		label define mig 1 "1. Always live in urban", add
+		label define mig 2 "2. Migrating to urban", add
+		label define mif 3 "3. Migrating to rural", add
+tab mig, gen(migs)
+		lab var migs1 "Always in rural"
+		lab var migs2 "Always in urban"
+		lab var migs3 "Migrate to urban"
+		lab var migs4 "Migrate to rural"
+	ren migs1 rural
+	ren migs2 urban
+	ren migs3 migrate_u
+	ren migs4 migrate_r
+
+
+********************
+*=== REGRESSION ===*
+********************
+* MODEL 1 *
+oprobit obesity migrate_u migrate_r urban age agesq female married working lnpce07 ///
+		elementary juniorschool seniorschool university, robust
+	mfx, predict(p outcome(0))
+		outreg2 using "$output\migration1.doc", se ctitle(normal) excel replace mfx
+	mfx, predict(p outcome(1))
+		outreg2 using "$output\migration1.doc", se ctitle(light obesity) excel append mfx
+	mfx, predict(p outcome(2))
+		outreg2 using "$output\migration1.doc", se ctitle(obesity) excel append mfx
+
+
+* MODEL 2 *
+probit obesity_d migrate_u migrate_r urban age agesq female married working lnpce07 ///
+		elementary juniorschool seniorschool university, robust
+mfx
+	outreg2 using "$output\migration2.doc", se ctitle(probit) excel replace mfx
+
+logit obesity_d migrate_u migrate_r urban age agesq female married working lnpce07 ///
+		elementary juniorschool seniorschool university, robust
+mfx
+	outreg2 using "$output\migration2.doc", se ctitle(logit) excel append mfx
+
+	
+* COBA 1
+oprobit obesity migrate_u migrate_r urban age agesq female married working lnpce07 ///
+		elementary juniorschool seniorschool university ///
+		m_elementary m_juniorschool m_seniorschool m_university, robust
+	mfx, predict(p outcome(0))
+		outreg2 using "$output\coba1.doc", se ctitle(normal) excel replace mfx
+	mfx, predict(p outcome(1))
+		outreg2 using "$output\coba1.doc", se ctitle(light obesity) excel append mfx
+	mfx, predict(p outcome(2))
+		outreg2 using "$output\coba1.doc", se ctitle(obesity) excel append mfx
+		
+* COBA 2
+oprobit obesity migrate_u migrate_r urban age agesq female married working lnpce07 ///
+		elementary juniorschool seniorschool university ///
+		f_elementary f_juniorschool f_seniorschool f_university, robust
+	mfx, predict(p outcome(0))
+		outreg2 using "$output\coba2.doc", se ctitle(normal) excel replace mfx
+	mfx, predict(p outcome(1))
+		outreg2 using "$output\coba2.doc", se ctitle(light obesity) excel append mfx
+	mfx, predict(p outcome(2))
+		outreg2 using "$output\coba2.doc", se ctitle(obesity) excel append mfx
