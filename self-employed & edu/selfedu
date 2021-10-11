@@ -1,0 +1,1588 @@
+** Gilang Amarullah
+** Mohamad Fahmi
+
+* Do the Educated Are Interested in Self-Employment? A Study Case of Indonesia *
+*** Using probit regression, this study is trying to find the effect of
+*** education degree to the decision of entering self-employment in case of
+*** Indonesian. This pooled cross-section research utilized IFLS dataset
+*** observing working people age 23 to 25 years old. The result shows that
+*** people with higher education level are less likely to becoming self-employed.
+
+
+*==============================================================================*
+*************************
+// MACRO DIRECTORY //
+*************************
+clear
+set more off
+cd "C:\Users\amaru\Documents\Stata"
+	global log "C:\Users\amaru\Documents\Stata\log"
+	global data "C:\Users\amaru\Documents\Stata\data"
+	global output "C:\Users\amaru\Documents\Stata\output"
+	global estimation "C:\Users\amaru\Google Drive\Skripsi\estimation"
+
+log using $log\Self-Employment, replace
+
+//DATA//
+ * IFLS 5 *
+	global ifls5hh "C:\Users\amaru\Documents\Datasets\IFLS\IFLS5\Household"
+	global ifls5cf "C:\Users\amaru\Documents\Datasets\IFLS\IFLS5\Community"
+
+ * IFLS 4 *
+	global ifls4hh "C:\Users\amaru\Documents\Datasets\IFLS\IFLS4\Household"
+	global ifls4cf "C:\Users\amaru\Documents\Datasets\IFLS\IFLS5\Community"
+
+ * IFLS 3 *
+	global ifls3hh "C:\Users\amaru\Documents\Datasets\IFLS\IFLS3\Household"
+	global ifls3cf "C:\Users\amaru\Documents\Datasets\IFLS\IFLS3\Community"
+
+ * IFLS 2+ *
+	global ifls2+hh "C:\Users\amaru\Documents\Datasets\IFLS\IFLS2+\Household"
+	global ifls2+cf "C:\Users\amaru\Documents\Datasets\IFLS\IFLS2+\Community"
+
+ * IFLS 2 *
+	global ifls2hh "C:\Users\amaru\Documents\Datasets\IFLS\IFLS2\Household"
+	global ifls2cf "C:\Users\amaru\Documents\Datasets\IFLS\IFLS2\Community"
+	
+	
+*==============================================================================*	
+* ETHNICITY *
+use $ifls4hh\bk_ar1, clear
+sort hhid07 pid07
+
+gen ethnic=ar15d
+		lab var ethnic "Ethnicity"
+	recode ethnic (98 99 =.)
+		
+	tab ethnic, gen(eth)
+			lab var eth1 ".... is Javanese"
+			lab var eth2 ".... is Sundanese"
+			lab var eth3 ".... is Bali"
+			lab var eth4 ".... is Batak"
+			lab var eth5 ".... is Bugis"
+			lab var eth6 ".... is Chinese"
+			lab var eth7 ".... is Maduranese"
+			lab var eth8 ".... is Sasak"
+			lab var eth9 ".... is Minang"
+			lab var eth10 ".... is Banjar"
+			lab var eth11 ".... is Bima-Dompu"
+			lab var eth12 ".... is Makassar"
+			lab var eth13 ".... is Nias"
+			lab var eth14 ".... is Palembang"
+			lab var eth15 ".... is Sumbawa"
+			lab var eth16 ".... is Toraja"
+			lab var eth17 ".... is Betawi"
+			lab var eth18 ".... is Dayak"
+			lab var eth19 ".... is Melayu"
+			lab var eth20 ".... is Komering"
+			lab var eth21 ".... is Ambonese"
+			lab var eth22 ".... is Manado"
+			lab var eth23 ".... is Acehnese"
+			lab var eth24 ".... is other Sumatrans"
+			lab var eth25 ".... is Banten"
+			lab var eth26 ".... is Cirebon"
+			lab var eth27 ".... is Gorontalo"
+			lab var eth28 ".... is other ethnic"
+		ren eth1 javanese
+		ren eth2 sundanese
+		ren eth3 bali
+		ren eth4 batak
+		ren eth5 bugis
+		ren eth6 chinese
+		ren eth7 maduranese
+		ren eth8 sasak
+		ren eth9 minang
+		ren eth10 banjar
+		ren eth11 bimadompu
+		ren eth12 makassar
+		ren eth13 nias
+		ren eth14 palembang
+		ren eth15 sumbawa
+		ren eth16 toraja
+		ren eth17 betawi
+		ren eth18 dayak
+		ren eth19 melayu
+		ren eth20 komering
+		ren eth21 ambonese
+		ren eth22 manado
+		ren eth23 acehnese
+		ren eth24 other_sumatrans
+		ren eth25 banten
+		ren eth26 cirebon
+		ren eth27 gorontalo
+		ren eth28 other_ethnic
+		
+duplicates drop pidlink, force
+sort pidlink
+keep pidlink ethnic-other_ethnic
+tempfile ethnic
+save `ethnic'
+
+*==============================================================================*
+*====================*
+ ****** IFLS 1 ******
+ ******* 1993 *******
+*====================*
+* EXPENDITURE PER CAPITA *
+use $data\IFLS_Expenditure\pce93nom, clear
+keep hhid93 hhsize93 xhhexp pce
+gen lnhhexp=log(xhhexp)
+gen lnpce=log(pce)
+gen lnpcesq=lnpce^2
+gen pcesq=pce^2
+		lab var xhhexp "Household monthly expenditure"
+		lab var pce "Per capita expenditure"
+		lab var pcesq "Per capita expenditure squared"
+		lab var lnpce "Log of per capita expenditure"
+		lab var lnpcesq "Log of per capita expenditure squared"
+		lab var lnhhexp "Log of household monthly expenditure"
+	ren xhhexp hhexp
+tempfile pce93nom
+save `pce93nom'
+
+
+*------------------------------------------------------------------------------*
+*====================*
+ ****** IFLS 2 ******
+ ******* 1997 *******
+*====================*
+* EXPENDITURE PER CAPITA *
+use $data\IFLS_Expenditure\pce97nom, clear
+keep hhid97 hhsize hhexp pce lnpce
+gen lnpcesq=lnpce^2
+gen lnhhexp=log(hhexp)
+gen pcesq=pce^2
+		lab var hhexp "Household monthly expenditure"
+		lab var pce "Per capita expenditure"
+		lab var pcesq "Per capita expenditure squared"
+		lab var lnpce "Log of per capita expenditure"
+		lab var lnpcesq "Log of per capita expenditure squared"
+		lab var lnhhexp "Log of household monthly expenditure"
+tempfile pce97nom
+save `pce97nom'
+
+
+// BOOK K //
+/// Section AR ///
+use $ifls2hh\bk_ar1, clear
+
+* Age (1997) *
+gen age=ar09
+		lab var age "Age"
+	recode age (998 999 = .)
+	
+* Education (1997) *
+gen edu=ar16
+gen educ=edu
+	recode edu (98 99 = .)
+	recode educ(98 99 = .)
+
+	** highest level **
+	recode edu (1 = 0)(2 11 72 = 1)(3 4 12 73 = 2)(5 6 74 = 3) ///
+			   (7 8 9 13 = 5) (10 14 17 70 90 = 6)
+		replace edu=0 if edu==1 & ar17!=7
+		replace edu=1 if edu==2 & ar17!=7
+		replace edu=2 if edu==3 & ar17!=7
+		replace edu=3 if edu==5 & ar17!=7
+	
+	tab edu, gen(educs)
+			lab var educs1 "No education"
+			lab var educs2 "Elementary school"
+			lab var educs3 "Junior high school"
+			lab var educs4 "Senior high school"
+			lab var educs5 "Tertiary education"
+			lab var educs6 "Other education"
+		ren educs1 noeduc
+		ren educs2 elementary
+		ren educs3 juniorschool
+		ren educs4 seniorschool
+		ren educs5 tertiary_educ
+		ren educs6 othereduc
+		
+	recode edu 6=.
+
+
+* Is .... still alive? *
+gen status=ar18h
+	recode status 3=0
+
+* Marital status *
+gen marstat=ar13
+	recode marstat (1 4 5 = 1)(2 3 = 2)(6 8 9 =.)
+tab marstat, gen(marr)
+	ren marr1 notmarried
+	ren marr2 married
+		lab var notmarried "Marital status: not married"
+		lab var married "Marital status: married"
+	
+* Parents ID *
+gen fid=ar10
+		lab var fid "Father's ID"
+gen mid=ar11
+		lab var fid "Mother's ID"
+		
+* Religion *
+gen religion=ar15
+		lab var religion "Religion"
+	recode religion (6 7 95 98 99 = 6)
+tab religion, gen(rel)
+	ren rel1 islam
+	ren rel2 protestant
+	ren rel3 catholic
+	ren rel4 hindu
+	ren rel5 buddha
+	ren rel6 other_religion
+		lab var islam ".... is Muslim"
+		lab var protestant ".... is Protestant"
+		lab var catholic ".... is Catholic"
+		lab var hindu ".... is Hindu"
+		lab var buddha ".... is Buddhist"
+		lab var other_religion "Other faith"
+
+* Sex *
+gen male=1 if ar07==1
+	recode male .=0
+		lab var male ".... is male"
+gen female=1 if male==0
+	recode female .=0
+		lab var female ".... is female"
+		
+duplicates drop pidlink, force
+sort hhid97 pid97
+keep hhid97 pid97 pidlink age-female ar17
+order pidlink hhid97 pid97
+tempfile ar197
+save `ar197'
+		
+/// Section SC ///
+use $ifls2hh\bk_sc, clear
+
+* Rural/Urban *
+gen urban=1 if sc05==1
+	replace urban=0 if sc05!=1
+gen rural=1 if urban==0
+	replace rural=0 if urban==1
+		lab var urban "Live in Urban"
+		lab var rural "Live in Rural"
+keep hhid97 rural urban
+tempfile sc97
+save `sc97'
+
+
+// BOOK 3A //
+/// Section DL ///
+use $ifls2hh\b3a_dl3, clear
+
+* NEM Scores *
+	** Math **
+	gen mathx=dl16ddx
+		lab var mathx "Math score: able to answer"
+	gen math=dl16dd
+		lab var math "Math score"
+	
+	** EBTANAS **
+	gen ebtanasx=dl16ex
+		lab var ebtanasx "EBTANAS Score: able to answer"
+	gen ebtanas=dl16e
+		lab var ebtanas "EBTANAS Score"
+	
+sort pidlink dl3type
+bys pidlink: gen elem=1 if  dl3type==1
+	drop if elem==.
+	drop elem
+
+keep hhid97 pid97 pidlink mathx math ebtanasx ebtanas
+tempfile dl397
+save `dl397'
+
+/// Section TK ///
+use $ifls2hh\b3a_tk1, clear
+keep pidlink hhid97 pid97 tk01
+
+merge 1:1 hhid97 pid97 using $ifls2hh\b3a_tk2
+
+* Job (1997) *
+gen job=tk24a
+		lab var job "Job"
+
+	** Total workers (1997) **
+	gen workers=tk20aa
+			lab var workers "Total workers at your firm"
+	gen labors=0 if workers==0
+		replace labors=1 if inrange(workers,1,4)
+		replace labors=2 if inrange(workers,5,19)
+		replace labors=3 if inrange(workers,20,99)
+		replace labors=4 if workers>=100
+		lab var labors "Total workers at your firm (approximately)"
+		
+	** Self-employed **
+	gen selfemployed=1 if job==1
+		recode selfemployed .=0
+			lab var selfemployed ".... is self-employed"
+			
+	** Government worker **
+	gen government=1 if job==4
+		recode government .=0
+			lab var government ".... is government worker"
+			
+	** Private worker **
+	gen private=1 if job==5
+		recode private .=0
+			lab var private ".... is private worker"
+			
+	** Other worker **
+	gen other_worker=1 if job!=1 & job!=4 & job!=5
+		recode other_worker .=0
+			lab var other_worker ".... is other sector worker"	
+	
+keep hhid97 pid97 tk01 job workers labors selfemployed government private other_worker
+tempfile tk297
+save `tk297'
+
+
+********************
+**** MERGE 1997 ****
+********************
+use `ar197', clear
+
+merge m:1 hhid97 using `pce97nom'
+	drop if _merge!=3
+	drop _merge 
+merge m:1 hhid97 using `sc97'
+	drop if _merge==2
+	drop _merge
+merge 1:1 hhid97 pid97 using `tk297'
+	drop if _merge!=3
+	drop _merge 
+merge 1:1 hhid97 pid97 using `dl397'
+*	drop if _merge==2
+	sort pidlink
+	by pidlink: egen pids=count(pid97)
+		drop if pids!=1 & age==.
+		drop pids
+	drop _merge
+merge 1:1 pidlink using `ethnic'
+	drop if _merge==2
+	drop _merge
+	
+* parents job *
+sort hhid97
+by hhid97: gen fatherjob=job[fid]
+
+	** father's job **
+		*** Self-employed ***
+		gen f_selfemployed=1 if fatherjob==1
+			recode f_selfemployed .=0
+				lab var f_selfemployed "Father is self-employed"
+		*** Government worker ***
+		gen f_government=1 if fatherjob==4
+			recode f_government .=0
+				lab var f_government "Father is government worker"
+		*** Private worker ***
+		gen f_private=1 if fatherjob==5
+			recode f_private .=0
+				lab var f_private "Father is private worker"
+
+	** f workers **
+	by hhid97: gen fworkers=labors[fid]
+			lab var fworkers "Total workers at father's job"
+
+tempfile ifls2
+save `ifls2'
+
+*------------------------------------------------------------------------------*
+*====================*
+ ****** IFLS 3 ******
+ ******* 2000 *******
+*====================*
+* EXPENDITURE PER CAPITA *
+use $data\IFLS_Expenditure\pce00nom, clear
+keep hhid00 hhsize hhexp pce lnpce
+gen lnhhexp=log(hhexp)
+gen lnpcesq=lnpce^2
+gen pcesq=pce^2
+		lab var hhexp "Household monthly expenditure"
+		lab var pce "Per capita expenditure"
+		lab var pcesq "Per capita expenditure squared"
+		lab var lnpce "Log of per capita expenditure"
+		lab var lnpcesq "Log of per capita expenditure squared"
+		lab var lnhhexp "Log of household monthly expenditure"
+tempfile pce00nom
+save `pce00nom'
+
+
+// BOOK K //
+/// Section AR ///
+use $ifls3hh\bk_ar1, clear
+
+* Age (2000) *
+gen age=ar09
+		lab var age "Age"
+	recode age (998 999 = .)
+	
+* Education (2000) *
+gen edu=ar16
+gen educ=edu
+	recode edu (98 99 = .)
+	recode educ(98 99 = .)
+
+	** highest level **
+	recode edu (1 = 0)(2 11 72 = 1)(3 4 12 73 = 2)(5 6 74 = 3)(60 = 4) ///
+			   (9 13 61 = 5) (62 = 6)(63 = 7)(10 14 17 70 90 = 8)
+		replace edu=0 if edu==1 & ar17!=7
+		replace edu=1 if edu==2 & ar17!=7
+		replace edu=2 if edu==3 & ar17!=7
+		replace edu=3 if edu==4 & ar17!=7
+		replace edu=3 if edu==5 & ar17!=7
+		replace edu=5 if edu==6 & ar17!=7
+		replace edu=6 if edu==7 & ar17!=7
+		recode edu (5 6 7 = 5)
+	
+	tab edu, gen(educs)
+			lab var educs1 "No education"
+			lab var educs2 "Elementary school"
+			lab var educs3 "Junior high school"
+			lab var educs4 "Senior high school"
+			lab var educs5 "Diploma"
+			lab var educs6 "University"
+			lab var educs7 "Other education"
+		ren educs1 noeduc
+		ren educs2 elementary
+		ren educs3 juniorschool
+		ren educs4 seniorschool
+		ren educs5 diploma
+		ren educs6 university
+		ren educs7 othereduc
+		
+	recode edu 8=.
+
+	** Tertiary education **
+	gen tertiary_educ=1 if diploma==1 | university==1
+		recode tertiary_educ .=0
+			lab var tertiary_educ "Tertiary education"
+
+* Is .... still alive? *
+gen status=ar18h
+	recode status 3=0
+
+* Marital status *
+gen marstat=ar13
+	recode marstat (1 4 5 = 1)(2 3 = 2)(6 8 9 =.)
+tab marstat, gen(marr)
+	ren marr1 notmarried
+	ren marr2 married
+		lab var notmarried "Marital status: not married"
+		lab var married "Marital status: married"
+	
+* Parents ID *
+gen fid=ar10
+		lab var fid "Father's ID"
+gen mid=ar11
+		lab var fid "Mother's ID"
+		
+* Religion *
+gen religion=ar15
+		lab var religion "Religion"
+	recode religion (6 7 95 99 = 6)
+tab religion, gen(rel)
+	ren rel1 islam
+	ren rel2 protestant
+	ren rel3 catholic
+	ren rel4 hindu
+	ren rel5 buddha
+	ren rel6 other_religion
+		lab var islam ".... is Muslim"
+		lab var protestant ".... is Protestant"
+		lab var catholic ".... is Catholic"
+		lab var hindu ".... is Hindu"
+		lab var buddha ".... is Buddhist"
+		lab var other_religion "Other faith"
+
+* Sex *
+gen male=1 if ar07==1
+	recode male .=0
+		lab var male ".... is male"
+gen female=1 if male==0
+	recode female .=0
+		lab var female ".... is female"
+		
+duplicates drop pidlink, force
+sort hhid00 pid00
+keep hhid00 pid00 pidlink age-female ar17
+order pidlink hhid00 pid00
+tempfile ar100
+save `ar100'
+		
+/// Section SC ///
+use $ifls3hh\bk_sc, clear
+
+* Rural/Urban *
+gen urban=1 if sc05==1
+	replace urban=0 if sc05!=1
+gen rural=1 if urban==0
+	replace rural=0 if urban==1
+		lab var urban "Live in Urban"
+		lab var rural "Live in Rural"
+keep hhid00 rural urban
+tempfile sc00
+save `sc00'
+
+
+// BOOK 3A //
+/// Section DL ///
+use $ifls3hh\b3a_dl3, clear
+
+* NEM Scores *
+	** Math **
+	gen mathx=dl16ddx
+		lab var mathx "Math score: able to answer"
+	gen math=dl16dd
+		lab var math "Math score"
+	replace math=. if math>10
+	
+	** EBTANAS **
+	gen ebtanasx=dl16ex
+		lab var ebtanasx "EBTANAS Score: able to answer"
+	gen ebtanas=dl16e
+		lab var ebtanas "EBTANAS Score"
+	
+sort pidlink dl3type
+bys pidlink: gen elem=1 if  dl3type==1
+	drop if elem==.
+	drop elem
+
+keep hhid00 pid00 pidlink mathx math ebtanasx ebtanas
+tempfile dl300
+save `dl300'
+
+/// Section TK ///
+use $ifls3hh\b3a_tk1, clear
+keep pidlink hhid00 pid00 tk01
+
+merge 1:1 hhid00 pid00 using $ifls3hh\b3a_tk2
+
+* Job (2000) *
+gen job=tk24a
+		lab var job "Job"
+
+	** Total workers (2000) **
+	gen workers=tk20aa
+			lab var workers "Total workers at your firm"
+	gen labors=0 if workers==0
+		replace labors=1 if inrange(workers,1,4)
+		replace labors=2 if inrange(workers,5,19)
+		replace labors=3 if inrange(workers,20,99)
+		replace labors=4 if workers>=100
+		lab var labors "Total workers at your firm (approximately)"
+		
+	** Self-employed **
+	gen selfemployed=1 if job==1 | job==2 | job==3
+		recode selfemployed .=0
+			lab var selfemployed ".... is self-employed"
+			
+	** Government worker **
+	gen government=1 if job==4
+		recode government .=0
+			lab var government ".... is government worker"
+			
+	** Private worker **
+	gen private=1 if job==5
+		recode private .=0
+			lab var private ".... is private worker"
+			
+	** Other worker **
+	gen other_worker=1 if job!=1 & job!=2 & job!=3 & job!=4 & job!=5
+		recode other_worker .=0
+			lab var other_worker ".... is other sector worker"	
+	
+keep hhid00 pid00 tk01 job workers labors selfemployed government private other_worker
+tempfile tk200
+save `tk200'
+
+
+********************
+**** MERGE 2000 ****
+********************
+use `ar100', clear
+
+merge m:1 hhid00 using `pce00nom'
+	drop if _merge!=3
+	drop _merge 
+merge m:1 hhid00 using `sc00'
+	drop if _merge==2
+	drop _merge
+merge 1:1 hhid00 pid00 using `tk200'
+	drop if _merge!=3
+	drop _merge
+merge 1:1 hhid00 pid00 using `dl300'
+*	drop if _merge==2
+	sort pidlink
+	by pidlink: egen pids=count(pid00)
+		drop if pids!=1 & age==.
+		drop pids
+	drop _merge
+merge 1:1 pidlink using `ethnic'
+	drop if _merge==2
+	drop _merge
+
+* parents job *
+sort hhid00
+by hhid00: gen fatherjob=job[fid]
+
+	** father's job **
+		*** Self-employed ***
+		gen f_selfemployed=1 if fatherjob==1 | fatherjob==2 | fatherjob==3
+			recode f_selfemployed .=0
+				lab var f_selfemployed "Father is self-employed"
+		*** Government worker ***
+		gen f_government=1 if fatherjob==4
+			recode f_government .=0
+				lab var f_government "Father is government worker"
+		*** Private worker ***
+		gen f_private=1 if fatherjob==5
+			recode f_private .=0
+				lab var f_private "Father is private worker"
+
+	** f workers **
+	by hhid00: gen fworkers=labors[fid]
+			lab var fworkers "Total workers at father's job"
+
+tempfile ifls3
+save `ifls3'
+
+
+*------------------------------------------------------------------------------*
+*====================*
+ ****** IFLS 4 ******
+ ******* 2007 *******
+*====================*
+* EXPENDITURE PER CAPITA *
+use $data\IFLS_Expenditure\pce07nom, clear
+keep hhid07 hhsize hhexp pce lnpce
+gen lnpcesq=lnpce^2
+gen lnhhexp=log(hhexp)
+gen pcesq=pce^2
+		lab var hhexp "Household monthly expenditure"
+		lab var pce "Per capita expenditure"
+		lab var pcesq "Per capita expenditure squared"
+		lab var lnpce "Log of per capita expenditure"
+		lab var lnpcesq "Log of per capita expenditure squared"
+		lab var lnhhexp "Log of household monthly expenditure"
+tempfile pce07nom
+save `pce07nom'
+
+// BOOK K //
+/// Section AR ///
+use $ifls4hh\bk_ar1, clear
+sort hhid07 pid07
+
+* Age (2007) *
+gen age=ar09
+		lab var age "Age"
+	recode age (998 999 = .)
+
+* Education (2014) *
+gen edu=ar16
+gen educ=edu
+	recode edu (98 99 = .)
+	recode educ (98 99 = .)
+
+	** highest level **
+	recode edu (1 = 0)(2 11 72 = 1)(3 4 12 73 = 2)(5 6 15 74 = 3)(60 = 4) ///
+			   (9 13 61 = 5) (62 = 6)(63 = 7)(10 14 17 70 90 95= 8)
+		replace edu=0 if edu==1 & ar17!=7
+		replace edu=1 if edu==2 & ar17!=7
+		replace edu=2 if edu==3 & ar17!=7
+		replace edu=3 if edu==4 & ar17!=7
+		replace edu=3 if edu==5 & ar17!=7
+		replace edu=5 if edu==6 & ar17!=7
+		replace edu=6 if edu==7 & ar17!=7
+		recode edu (5 6 7 = 5)
+
+	tab edu, gen(educs)
+			lab var educs1 "No education"
+			lab var educs2 "Elementary school"
+			lab var educs3 "Junior high school"
+			lab var educs4 "Senior high school"
+			lab var educs5 "Diploma"
+			lab var educs6 "University"
+			lab var educs7 "Other education"
+		ren educs1 noeduc
+		ren educs2 elementary
+		ren educs3 juniorschool
+		ren educs4 seniorschool
+		ren educs5 diploma
+		ren educs6 university
+		ren educs7 othereduc
+		
+	recode edu 8=.
+	
+	** Tertiary education **
+	gen tertiary_educ=1 if diploma==1 | university==1
+		recode tertiary_educ .=0
+			lab var tertiary_educ "Tertiary education"
+
+* Ethnicitiy *
+gen ethnic=ar15d
+		lab var ethnic "Ethnicity"
+	recode ethnic (98 99 =.)
+		
+	tab ethnic, gen(eth)
+			lab var eth1 ".... is Javanese"
+			lab var eth2 ".... is Sundanese"
+			lab var eth3 ".... is Bali"
+			lab var eth4 ".... is Batak"
+			lab var eth5 ".... is Bugis"
+			lab var eth6 ".... is Chinese"
+			lab var eth7 ".... is Maduranese"
+			lab var eth8 ".... is Sasak"
+			lab var eth9 ".... is Minang"
+			lab var eth10 ".... is Banjar"
+			lab var eth11 ".... is Bima-Dompu"
+			lab var eth12 ".... is Makassar"
+			lab var eth13 ".... is Nias"
+			lab var eth14 ".... is Palembang"
+			lab var eth15 ".... is Sumbawa"
+			lab var eth16 ".... is Toraja"
+			lab var eth17 ".... is Betawi"
+			lab var eth18 ".... is Dayak"
+			lab var eth19 ".... is Melayu"
+			lab var eth20 ".... is Komering"
+			lab var eth21 ".... is Ambonese"
+			lab var eth22 ".... is Manado"
+			lab var eth23 ".... is Acehnese"
+			lab var eth24 ".... is other Sumatrans"
+			lab var eth25 ".... is Banten"
+			lab var eth26 ".... is Cirebon"
+			lab var eth27 ".... is Gorontalo"
+			lab var eth28 ".... is other ethnic"
+		ren eth1 javanese
+		ren eth2 sundanese
+		ren eth3 bali
+		ren eth4 batak
+		ren eth5 bugis
+		ren eth6 chinese
+		ren eth7 maduranese
+		ren eth8 sasak
+		ren eth9 minang
+		ren eth10 banjar
+		ren eth11 bimadompu
+		ren eth12 makassar
+		ren eth13 nias
+		ren eth14 palembang
+		ren eth15 sumbawa
+		ren eth16 toraja
+		ren eth17 betawi
+		ren eth18 dayak
+		ren eth19 melayu
+		ren eth20 komering
+		ren eth21 ambonese
+		ren eth22 manado
+		ren eth23 acehnese
+		ren eth24 other_sumatrans
+		ren eth25 banten
+		ren eth26 cirebon
+		ren eth27 gorontalo
+		ren eth28 other_ethnic
+
+* Is .... still alive? *
+gen status14=ar18h
+	recode status14 3=0
+	
+* Marital status *
+gen marstat=ar13
+	recode marstat (1 4 5 = 1)(2 3 = 2)(6 8 9 =.)
+tab marstat, gen(marr)
+	ren marr1 notmarried
+	ren marr2 married
+		lab var notmarried "Marital status: not married"
+		lab var married "Marital status: married"
+	
+* Parents ID *
+gen fid=ar10
+		lab var fid "Father's ID"
+gen mid=ar11
+		lab var fid "Mother's ID"
+		
+* Religion *
+gen religion=ar15
+		lab var religion "Religion"
+	recode religion (6 7 95 99 = 6)
+tab religion, gen(rel)
+	ren rel1 islam
+	ren rel2 protestant
+	ren rel3 catholic
+	ren rel4 hindu
+	ren rel5 buddha
+	ren rel6 other_religion
+		lab var islam ".... is Muslim"
+		lab var protestant ".... is Protestant"
+		lab var catholic ".... is Catholic"
+		lab var hindu ".... is Hindu"
+		lab var buddha ".... is Buddhist"
+		lab var other_religion "Other faith"
+
+* Sex *
+gen male=1 if ar07==1
+	recode male .=0
+		lab var male ".... is male"
+gen female=1 if male==0
+	recode female .=0
+		lab var female ".... is female"
+
+
+duplicates drop pidlink, force
+keep pidlink hhid07 pid07 age-female ar17
+tempfile ar107
+save `ar107'
+	
+/// Section SC ///
+use $ifls4hh\bk_sc, clear
+
+* Rural/Urban *
+gen urban=1 if sc05==1
+	replace urban=0 if sc05!=1
+gen rural=1 if urban==0
+	replace rural=0 if urban==1
+		lab var urban "Live in Urban"
+		lab var rural "Live in Rural"
+keep hhid07 rural urban
+tempfile sc07
+save `sc07'
+
+
+// BOOK 3A //
+/// Section DL ///
+use $ifls4hh\b3a_dl3, clear
+
+* NEM Scores *
+	** Math **
+	gen mathx=dl16ddx
+		lab var mathx "Math score: able to answer"
+	gen math=dl16dd
+		lab var math "Math score"
+	replace math=. if math>10
+	
+	** EBTANAS **
+	gen ebtanasx=dl16ex
+		lab var ebtanasx "EBTANAS Score: able to answer"
+	gen ebtanas=dl16e
+		lab var ebtanas "EBTANAS Score"
+	
+sort pidlink dl3type
+bys pidlink: gen elem=1 if  dl3type==1
+	drop if elem==.
+	drop elem
+
+keep hhid07 pid07 pidlink mathx math ebtanasx ebtanas
+tempfile dl307
+save `dl307'
+
+/// Section TK ///
+use $ifls4hh\b3a_tk1, clear
+keep pidlink hhid07 pid07 tk01
+
+merge 1:1 hhid07 pid07 using $ifls4hh\b3a_tk2
+
+* Job *
+gen job=tk24a
+	lab var job "Job"
+
+	** Total workers (2007) **
+	gen workers=tk20aa
+			lab var workers "Total workers at your firm"
+	gen labors=tk20ab
+			lab var labors "Total workers at your firm (approximately)"
+		recode labors 9=.
+		replace labors=1 if inrange(workers,1,4)
+		replace labors=2 if inrange(workers,5,19)
+		replace labors=3 if inrange(workers,20,99)
+		replace labors=4 if workers>=100
+	
+	** Self-employed **
+	gen selfemployed=1 if job==1 | job==2 | job==3
+		recode selfemployed .=0
+			lab var selfemployed ".... is self-employed"
+			
+	** Government worker **
+	gen government=1 if job==4
+		recode government .=0
+			lab var government ".... is government worker"
+			
+	** Private worker **
+	gen private=1 if job==5
+		recode private .=0
+			lab var private ".... is private worker"
+			
+	** Other worker **
+	gen other_worker=1 if job!=1 & job!=2 & job!=3 & job!=4 & job!=5
+		recode other_worker .=0
+			lab var other_worker ".... is other sector worker"
+
+keep pidlink hhid07 pid07 tk01 job-other_worker
+tempfile tk207
+save `tk207'
+
+********************
+**** MERGE 2007 ****
+********************
+use `ar107', clear
+
+merge m:1 hhid07 using `pce07nom'
+	drop if _merge!=3
+	drop _merge 
+merge m:1 hhid07 using `sc07'
+	drop if _merge==2
+	drop _merge 
+merge 1:1 hhid07 pid07 using `tk207'
+	drop if _merge!=3
+	drop _merge
+merge 1:1 hhid07 pid07 using `dl307'
+*	drop if _merge==2
+	sort pidlink
+	by pidlink: egen pids=count(pid07)
+		drop if pids!=1 & age==.
+		drop pids
+	drop _merge
+	
+* parents job *
+sort hhid07
+by hhid07: gen fatherjob=job[fid]
+
+	** father's job **
+		*** Self-employed ***
+		gen f_selfemployed=1 if fatherjob==1 | fatherjob==2 | fatherjob==3
+			recode f_selfemployed .=0
+				lab var f_selfemployed "Father is self-employed"
+		*** Government worker ***
+		gen f_government=1 if fatherjob==4
+			recode f_government .=0
+				lab var f_government "Father is government worker"
+		*** Private worker ***
+		gen f_private=1 if fatherjob==5
+			recode f_private .=0
+				lab var f_private "Father is private worker"
+
+	** f workers **
+	by hhid07: gen fworkers=labors[fid]
+			lab var fworkers "Total workers at father's job"
+
+tempfile ifls4
+save `ifls4'
+
+
+*------------------------------------------------------------------------------*
+*====================*
+ ****** IFLS 5 ******
+ ******* 2014 *******
+*====================*
+* EXPENDITURE PER CAPITA *
+use $data\IFLS_Expenditure\pce14nom, clear
+keep hhid14 hhsize hhexp pce lnpce
+gen lnpcesq=lnpce^2
+gen lnhhexp=log(hhexp)
+gen pcesq=pce^2
+		lab var hhexp "Household monthly expenditure"
+		lab var pce "Per capita expenditure"
+		lab var pcesq "Per capita expenditure squared"
+		lab var lnpce "Log of per capita expenditure"
+		lab var lnpcesq "Log of per capita expenditure squared"
+		lab var lnhhexp "Log of household monthly expenditure"
+tempfile pce14nom
+save `pce14nom'
+
+
+// BOOK K //
+/// Section AR ///
+use $ifls5hh\bk_ar1, clear
+sort hhid14 pid14
+
+* Age (2014) *
+gen age=ar09
+		lab var age "Age"
+	recode age (998 999 = .)
+
+* Education (2014) *
+gen edu=ar16
+gen educ=edu
+	recode edu (98 99 = .)
+	recode educ (98 99 = .)
+
+	** highest level **
+	recode edu (1 = 0)(2 11 72 = 1)(3 4 12 73 = 2)(5 6 15 74 = 3)(60 = 4) ///
+			   (9 13 61 = 5) (62 = 6)(63 = 7)(10 14 17 70 90 95= 8)
+		replace edu=0 if edu==1 & ar17!=7
+		replace edu=1 if edu==2 & ar17!=7
+		replace edu=2 if edu==3 & ar17!=7
+		replace edu=3 if edu==4 & ar17!=7
+		replace edu=3 if edu==5 & ar17!=7
+		replace edu=5 if edu==6 & ar17!=7
+		replace edu=6 if edu==7 & ar17!=7
+		recode edu (5 6 7 = 5)
+
+	tab edu, gen(educs)
+			lab var educs1 "No education"
+			lab var educs2 "Elementary school"
+			lab var educs3 "Junior high school"
+			lab var educs4 "Senior high school"
+			lab var educs5 "Diploma"
+			lab var educs6 "University"
+			lab var educs7 "Other education"
+		ren educs1 noeduc
+		ren educs2 elementary
+		ren educs3 juniorschool
+		ren educs4 seniorschool
+		ren educs5 diploma
+		ren educs6 university
+		ren educs7 othereduc
+		
+	recode edu 8=.
+	
+	** Tertiary education **
+	gen tertiary_educ=1 if diploma==1 | university==1
+		recode tertiary_educ .=0
+			lab var tertiary_educ "Tertiary education"
+
+* Ethnicitiy *
+gen ethnic=ar15d
+		lab var ethnic "Ethnicity"
+	recode ethnic (98 99 =.)
+		
+	tab ethnic, gen(eth)
+			lab var eth1 ".... is Javanese"
+			lab var eth2 ".... is Sundanese"
+			lab var eth3 ".... is Bali"
+			lab var eth4 ".... is Batak"
+			lab var eth5 ".... is Bugis"
+			lab var eth6 ".... is Chinese"
+			lab var eth7 ".... is Maduranese"
+			lab var eth8 ".... is Sasak"
+			lab var eth9 ".... is Minang"
+			lab var eth10 ".... is Banjar"
+			lab var eth11 ".... is Bima-Dompu"
+			lab var eth12 ".... is Makassar"
+			lab var eth13 ".... is Nias"
+			lab var eth14 ".... is Palembang"
+			lab var eth15 ".... is Sumbawa"
+			lab var eth16 ".... is Toraja"
+			lab var eth17 ".... is Betawi"
+			lab var eth18 ".... is Dayak"
+			lab var eth19 ".... is Melayu"
+			lab var eth20 ".... is Komering"
+			lab var eth21 ".... is Ambonese"
+			lab var eth22 ".... is Manado"
+			lab var eth23 ".... is Acehnese"
+			lab var eth24 ".... is other Sumatrans"
+			lab var eth25 ".... is Banten"
+			lab var eth26 ".... is Cirebon"
+			lab var eth27 ".... is Gorontalo"
+			lab var eth28 ".... is other ethnic"
+		ren eth1 javanese
+		ren eth2 sundanese
+		ren eth3 bali
+		ren eth4 batak
+		ren eth5 bugis
+		ren eth6 chinese
+		ren eth7 maduranese
+		ren eth8 sasak
+		ren eth9 minang
+		ren eth10 banjar
+		ren eth11 bimadompu
+		ren eth12 makassar
+		ren eth13 nias
+		ren eth14 palembang
+		ren eth15 sumbawa
+		ren eth16 toraja
+		ren eth17 betawi
+		ren eth18 dayak
+		ren eth19 melayu
+		ren eth20 komering
+		ren eth21 ambonese
+		ren eth22 manado
+		ren eth23 acehnese
+		ren eth24 other_sumatrans
+		ren eth25 banten
+		ren eth26 cirebon
+		ren eth27 gorontalo
+		ren eth28 other_ethnic
+
+* Is .... still alive? *
+gen status14=ar18h
+	recode status14 3=0
+	
+* Marital status *
+gen marstat=ar13
+	recode marstat (1 4 5 = 1)(2 3 = 2)(6 8 9 =.)
+tab marstat, gen(marr)
+	ren marr1 notmarried
+	ren marr2 married
+		lab var notmarried "Marital status: not married"
+		lab var married "Marital status: married"
+	
+* Parents ID *
+gen fid=ar10
+		lab var fid "Father's ID"
+gen mid=ar11
+		lab var mid "Mother's ID"
+		
+* Religion *
+gen religion=ar15
+		lab var religion "Religion"
+	recode religion (6 7 95 99 = 6)
+tab religion, gen(rel)
+	ren rel1 islam
+	ren rel2 protestant
+	ren rel3 catholic
+	ren rel4 hindu
+	ren rel5 buddha
+	ren rel6 other_religion
+		lab var islam ".... is Muslim"
+		lab var protestant ".... is Protestant"
+		lab var catholic ".... is Catholic"
+		lab var hindu ".... is Hindu"
+		lab var buddha ".... is Buddhist"
+		lab var other_religion "Other faith"
+
+* Sex *
+gen male=1 if ar07==1
+	recode male .=0
+		lab var male ".... is male"
+gen female=1 if male==0
+	recode female .=0
+		lab var female ".... is female"
+
+
+duplicates drop pidlink, force
+keep pidlink hhid14 pid14 age-female ar17
+tempfile ar114
+save `ar114'
+	
+/// Section SC ///
+use $ifls5hh\bk_sc1, clear
+
+* Rural/Urban *
+gen urban=1 if sc05==1
+	replace urban=0 if sc05!=1
+gen rural=1 if urban==0
+	replace rural=0 if urban==1
+		lab var urban "Live in Urban"
+		lab var rural "Live in Rural"
+keep hhid14 rural urban
+tempfile sc14
+save `sc14'
+
+
+// BOOK 3A //
+/// Section DL ///
+use $ifls5hh\b3a_dl3, clear
+
+* NEM Scores *
+	** Math **
+	gen mathx=dl16ddx
+		lab var mathx "Math score: able to answer"
+	gen math=dl16dd
+		lab var math "Math score"
+	
+	** EBTANAS **
+	gen ebtanasx=dl16ex
+		lab var ebtanasx "EBTANAS Score: able to answer"
+	gen ebtanas=dl16e
+		lab var ebtanas "EBTANAS Score"
+	
+sort pidlink dl3type
+bys pidlink: gen elem=1 if  dl3type==1
+	drop if elem==.
+	drop elem
+
+keep hhid14 pid14 pidlink mathx math ebtanasx ebtanas
+tempfile dl314
+save `dl314'
+
+/// Section TK ///
+use $ifls5hh\b3a_tk1, clear
+keep pidlink hhid14 pid14 tk01
+
+merge 1:1 hhid14 pid14 using $ifls5hh\b3a_tk2
+
+* Job *
+gen job=tk24a
+	lab var job "Job"
+
+	** Total workers (2014) **
+	gen workers=tk20aa
+			lab var workers "Total workers at your firm"
+	gen labors=tk20ab
+			lab var labors "Total workers at your firm (approximately)"
+		recode labors 9=.
+		replace labors=1 if inrange(workers,1,4)
+		replace labors=2 if inrange(workers,5,19)
+		replace labors=3 if inrange(workers,20,99)
+		replace labors=4 if workers>=100
+	
+	** Self-employed **
+	gen selfemployed=1 if job==1 | job==2 | job==3
+		recode selfemployed .=0
+			lab var selfemployed ".... is self-employed"
+			
+	** Government worker **
+	gen government=1 if job==4
+		recode government .=0
+			lab var government ".... is government worker"
+			
+	** Private worker **
+	gen private=1 if job==5
+		recode private .=0
+			lab var private ".... is private worker"
+			
+	** Other worker **
+	gen other_worker=1 if job!=1 & job!=2 & job!=3 & job!=4 & job!=5
+		recode other_worker .=0
+			lab var other_worker ".... is other sector worker"
+
+keep pidlink hhid14 pid14 tk01 job-other_worker
+tempfile tk214
+save `tk214'
+
+********************
+**** MERGE 2014 ****
+********************
+use `ar114', clear
+
+merge m:1 hhid14 using `pce14nom'
+	drop if _merge!=3
+	drop _merge
+merge m:1 hhid14 using `sc14'
+	drop if _merge==2
+	drop _merge 
+merge 1:1 hhid14 pid14 using `tk214'
+	drop if _merge!=3
+	drop _merge
+merge 1:1 hhid14 pid14 using `dl314'
+*	drop if _merge==2
+	sort pidlink
+	by pidlink: egen pids=count(pid14)
+		drop if pids!=1 & age==.
+		drop pids
+	drop _merge
+
+* parents job *
+sort hhid14
+by hhid14: gen fatherjob=job[fid]
+
+	** father's job **
+		*** Self-employed ***
+		gen f_selfemployed=1 if fatherjob==1 | fatherjob==2 | fatherjob==3
+			recode f_selfemployed .=0
+				lab var f_selfemployed "Father is self-employed"
+		*** Government worker ***
+		gen f_government=1 if fatherjob==4
+			recode f_government .=0
+				lab var f_government "Father is government worker"
+		*** Private worker ***
+		gen f_private=1 if fatherjob==5
+			recode f_private .=0
+				lab var f_private "Father is private worker"
+
+	** f workers **
+	by hhid14: gen fworkers=labors[fid]
+			lab var fworkers "Total workers at father's job"
+
+gen yr14=1
+tempfile ifls5
+save `ifls5'
+
+
+*==============================================================================*
+**********************************
+ ************ APPEND ************
+**********************************
+append using `ifls4', gen(yr07)
+	replace yr14=0 if yr14==. & yr07==1 
+append using `ifls3', gen(yr00)
+	replace yr14=0 if yr14==. & yr00==1
+	replace yr07=0 if yr07==. & yr00==1
+append using `ifls2', gen(yr97)
+	replace yr14=0 if yr14==. & yr97==1
+	replace yr07=0 if yr07==. & yr97==1
+	replace yr00=0 if yr00==. & yr97==1
+
+order pidlink yr97 yr00 yr07 yr14 hhid97 pid97 hhid00 pid00 hhid07 pid07 hhid14 pid14
+sort yr14 yr07 yr00 pidlink
+
+* Age square *
+gen agesqr=age^2
+		lab var agesqr "Age squared"
+
+* Education *
+gen primary_educ=1 if elementary==1 | juniorschool==1
+	recode primary_educ .=0
+		lab var primary_educ "Primary education"
+
+	** Education interraction **
+	gen seniorschool_97=seniorschool*yr97
+	gen seniorschool_00=seniorschool*yr00
+	gen seniorschool_07=seniorschool*yr07
+	gen seniorschool_14=seniorschool*yr14
+
+	gen tertiary_97=tertiary_educ*yr97
+	gen tertiary_00=tertiary_educ*yr00
+	gen tertiary_07=tertiary_educ*yr07
+	gen tertiary_14=tertiary_educ*yr14
+	
+* Ethnics *
+gen other_eth=1 if other_sumatrans==1 | other_ethnic==1
+	recode other_eth .=0
+
+* Job *
+	** Father's job **
+	gen f_other=1 if f_selfemployed==0 & f_government==0 & f_private==0
+		recode f_other .=0
+
+* Year *
+gen year=0 if yr97==1
+	replace year=1 if yr00==1
+	replace year=2 if yr07==1
+	replace year=3 if yr14==1
+
+* PCE in IDR Million *
+gen pce_m=pce/1000000
+gen pcesq_m=pce_m^2
+	lab var pce_m "PCE in Million IDR"
+	lab var pcesq_m "PCE squared in Million IDR"
+	
+* Interaction *
+gen female_tertiary=female*tertiary_educ
+		lab var female_tertiary "Female with tertiary education"
+gen female_senior=female*seniorschool
+		lab var female_senior "Senior high school female"
+gen male_tertiary=male*tertiary_educ
+		lab var male_tertiary "Male with tertiary education"
+gen male_senior=male*seniorschool
+		lab var male_senior "Senior high school male"
+	
+
+* OBSERVATION *
+	** OBS 1 **
+	gen obs1=1 if inrange(age,21,23)
+		recode obs1 .=0
+			lab var obs1 "Obs 1 : 21,22,23"
+	
+	** OBS 2 **
+	gen obs2=1 if inrange(age,22,24)
+		recode obs2 .=0
+			lab var obs2 "Obs 2 : 22,23,24"
+
+	** OBS 3 **
+	gen obs3=1 if inrange(age,23,25)
+		recode obs3 .=0
+			lab var obs3 "Obs 3 : 23,24,25"
+			
+			
+************* OUTPUT *************
+save $output\08, replace
+saveold $output\08_old, replace
+**********************************
+
+gen obsb=1 if seniorschool==1 | tertiary_educ==1
+	recode obsb .=0
+
+
+
+*==============================================================================*
+*==============================*
+********** REGRESSION **********
+*==============================*
+* PROBIT *
+/*
+** OBS 1 **
+probit selfemployed seniorschool tertiary_educ ///
+	female married islam ///
+	pce_m pcesq_m ///
+	f_government f_private f_other ///
+	yr00 yr07 yr14 ///
+	javanese sundanese bali batak bugis chinese maduranese sasak minang banjar ///
+		bimadompu makassar nias palembang sumbawa toraja betawi dayak melayu ///
+		komering ambonese manado acehnese banten cirebon gorontalo ///
+	if obs1==1 & workers!=. & tk01==1, robust
+mfx
+outreg2 using "$estimation\estimation_08.doc", se ctitle(21-23) excel replace mfx
+outreg2 using "$estimation\estimation_08_01.doc", se ctitle(probit) excel replace mfx
+
+** OBS 2 **
+probit selfemployed seniorschool tertiary_educ ///
+	female married islam ///
+	pce_m pcesq_m ///
+	f_government f_private f_other ///
+	yr00 yr07 yr14 ///
+	javanese sundanese bali batak bugis chinese maduranese sasak minang banjar ///
+		bimadompu makassar nias palembang sumbawa toraja betawi dayak melayu ///
+		komering ambonese manado acehnese banten cirebon gorontalo ///
+	if obs2==1 & workers!=. & tk01==1, robust
+mfx
+outreg2 using "$estimation\estimation_08.doc", se ctitle(22-24) excel append mfx
+outreg2 using "$estimation\estimation_08_02.doc", se ctitle(probit) excel replace mfx
+*/
+
+
+** OBS 3 **
+*** I ***
+probit selfemployed seniorschool tertiary_educ ///
+	if obs3==1 & workers!=. & tk01==1, robust
+mfx
+outreg2 using "$estimation\estimation_08_test.doc", se ctitle(I) excel replace mfx
+
+*** II ***
+probit selfemployed seniorschool tertiary_educ ///
+	female married ///
+	islam ///
+	pce_m pcesq_m ///
+	f_government f_private f_other ///
+	yr00 yr07 yr14 ///
+	javanese sundanese bali batak bugis chinese maduranese sasak minang banjar ///
+		bimadompu makassar nias palembang sumbawa toraja betawi dayak melayu ///
+		komering ambonese manado acehnese banten cirebon gorontalo ///
+	if obs3==1 & workers!=. & tk01==1, robust
+mfx
+outreg2 using "$estimation\estimation_08_test.doc", se ctitle(II) excel append mfx
+*outreg2 using "$estimation\estimation_08.doc", se ctitle(23-25) excel append mfx
+*outreg2 using "$estimation\estimation_08_03.doc", se ctitle(probit) excel replace mfx
+
+*** III ***
+probit selfemployed tertiary_educ ///
+	female married ///
+	islam ///
+	pce_m pcesq_m ///
+	f_government f_private f_other ///
+	yr00 yr07 yr14 ///
+	javanese sundanese bali batak bugis chinese maduranese sasak minang banjar ///
+		bimadompu makassar nias palembang sumbawa toraja betawi dayak melayu ///
+		komering ambonese manado acehnese banten cirebon gorontalo ///
+	if obs3==1 & workers!=. & tk01==1 & obsb==1, robust
+mfx
+outreg2 using "$estimation\estimation_08_test.doc", se ctitle(III) excel append mfx
+
+
+
+* LOGIT *
+** OBS 1 **
+logit selfemployed seniorschool tertiary_educ ///
+	female married islam ///
+	pce_m pcesq_m ///
+	f_government f_private f_other ///
+	yr00 yr07 yr14 ///
+	javanese sundanese bali batak bugis chinese maduranese sasak minang banjar ///
+		bimadompu makassar nias palembang sumbawa toraja betawi dayak melayu ///
+		komering ambonese manado acehnese banten cirebon gorontalo ///
+	if obs1==1 & workers!=. & tk01==1, robust
+mfx
+outreg2 using "$estimation\estimation_08_01.doc", se ctitle(logit) excel append mfx
+
+** OBS 2 **
+logit selfemployed seniorschool tertiary_educ ///
+	female married islam ///
+	pce_m pcesq_m ///
+	f_government f_private f_other ///
+	yr00 yr07 yr14 ///
+	javanese sundanese bali batak bugis chinese maduranese sasak minang banjar ///
+		bimadompu makassar nias palembang sumbawa toraja betawi dayak melayu ///
+		komering ambonese manado acehnese banten cirebon gorontalo ///
+	if obs2==1 & workers!=. & tk01==1 , robust
+mfx
+outreg2 using "$estimation\estimation_08_02.doc", se ctitle(logit) excel append mfx
+
+** OBS 3 **
+logit selfemployed seniorschool tertiary_educ ///
+	female married islam ///
+	pce_m pcesq_m ///
+	f_government f_private f_other ///
+	yr00 yr07 yr14 ///
+	javanese sundanese bali batak bugis chinese maduranese sasak minang banjar ///
+		bimadompu makassar nias palembang sumbawa toraja betawi dayak melayu ///
+		komering ambonese manado acehnese banten cirebon gorontalo ///
+	if obs3==1 & workers!=. & tk01==1, robust
+mfx
+outreg2 using "$estimation\estimation_08_03.doc", se ctitle(logit) excel append mfx
+
+*------------------------------------------------------------------------------*
+/*
+* INTERRACTION REGRESSION *
+** OBS 3 **
+probit selfemployed seniorschool tertiary_educ ///
+	seniorschool_00 tertiary_00 seniorschool_07 tertiary_07 seniorschool_14 tertiary_14 ///
+	female married islam ///
+	pce_m pcesq_m ///
+	f_selfemployed f_government f_private ///
+	yr00 yr07 yr14 ///
+	javanese sundanese bali batak bugis maduranese sasak minang banjar ///
+		bimadompu makassar palembang sumbawa toraja betawi melayu komering banten ///
+	if obs3==1 & workers!=. & tk01==1, robust
+mfx
+outreg2 using "$estimation\estimation_08_03b.doc", se ctitle(probit) excel replace mfx
+
+logit selfemployed seniorschool tertiary_educ ///
+	seniorschool_00 tertiary_00 seniorschool_07 tertiary_07 seniorschool_14 tertiary_14 ///
+	female married islam ///
+	pce_m pcesq_m ///
+	f_selfemployed f_government f_private ///
+	yr00 yr07 yr14 ///
+	javanese sundanese bali batak bugis maduranese sasak minang banjar ///
+		bimadompu makassar palembang sumbawa toraja betawi melayu komering banten ///
+	if obs3==1 & workers!=. & tk01==1, robust
+mfx
+outreg2 using "$estimation\estimation_08_03b.doc", se ctitle(logit) excel append mfx
+*/
+
+*==============================================================================*
+*======================================*
+ ********* SUMMARY STATISTICS *********
+*======================================*
+** OBS 3 **
+sum selfemployed government private other_worker ///
+		noeduc elementary juniorschool seniorschool tertiary_educ othereduc ///
+		age female male married notmarried ///
+		islam protestant catholic hindu buddha other_religion ///
+		pce_m ///
+		f_selfemployed f_government f_private f_other ///
+		yr97 yr00 yr07 yr14 ///
+	if obs3==1 & selfemployed!=. & workers!=. & tk01==1 ///
+	& seniorschool!=.  & tertiary_educ!=. ///
+	& pce_m!=. ///
+	& f_selfemployed!=. & f_government!=. & f_private!=. & f_other!=. ///
+	& female!=. & married!=. & islam!=. ///
+	& javanese!=. & sundanese!=. & bali!=. & batak!=. & bugis!=. & chinese!=. ///
+		& maduranese!=. & sasak!=. & minang!=. & banjar!=. & bimadompu!=. ///
+		& makassar!=. & nias!=. & palembang!=. & sumbawa!=. & toraja!=. ///
+		& betawi!=. & dayak!=. & melayu!=. & komering!=. & ambonese!=. ///
+		& manado!=. & acehnese!=. & banten!=. & cirebon!=. & gorontalo!=. ///
+		& other_eth!=.
+
+sum javanese sundanese bali batak bugis chinese maduranese sasak minang banjar ///
+		bimadompu makassar nias palembang sumbawa toraja betawi dayak melayu ///
+		komering ambonese manado acehnese banten cirebon gorontalo other_eth ///
+	if obs3==1 & selfemployed!=. & workers!=. & tk01==1 ///
+	& seniorschool!=.  & tertiary_educ!=. ///
+	& pce_m!=. ///
+	& f_selfemployed!=. & f_government!=. & f_private!=. & f_other!=. ///
+	& female!=. & married!=. & islam!=. ///
+	& javanese!=. & sundanese!=. & bali!=. & batak!=. & bugis!=. & chinese!=. ///
+		& maduranese!=. & sasak!=. & minang!=. & banjar!=. & bimadompu!=. ///
+		& makassar!=. & nias!=. & palembang!=. & sumbawa!=. & toraja!=. ///
+		& betawi!=. & dayak!=. & melayu!=. & komering!=. & ambonese!=. ///
+		& manado!=. & acehnese!=. & banten!=. & cirebon!=. & gorontalo!=. ///
+		& other_eth!=.
+
+		
+tab educ if ar17!=7 ///
+	& obs3==1 & selfemployed!=. & workers!=. & tk01==1 ///
+	& seniorschool!=.  & tertiary_educ!=. ///
+	& pce_m!=. ///
+	& f_selfemployed!=. & f_government!=. & f_private!=. & f_other!=. ///
+	& female!=. & married!=. & islam!=. ///
+	& javanese!=. & sundanese!=. & bali!=. & batak!=. & bugis!=. & chinese!=. ///
+		& maduranese!=. & sasak!=. & minang!=. & banjar!=. & bimadompu!=. ///
+		& makassar!=. & nias!=. & palembang!=. & sumbawa!=. & toraja!=. ///
+		& betawi!=. & dayak!=. & melayu!=. & komering!=. & ambonese!=. ///
+		& manado!=. & acehnese!=. & banten!=. & cirebon!=. & gorontalo!=. ///
+		& other_eth!=.
+
+log close
