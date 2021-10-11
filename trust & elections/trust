@@ -1,0 +1,736 @@
+*==============================================================================*
+*************************
+// MACRO DIRECTORY //
+*************************
+clear
+set more off
+cd "E:\stata"
+global log "E:\stata\log"
+global data "E:\stata\data"
+global output "E:\stata\output"
+
+//DATA//
+ * IFLS 5 *
+global ifls5hh "E:\IFLS\IFLS5\Household_Survey"
+global ifls5cf "E:\IFLS\IFLS5\Community_Survey"
+
+ * IFLS 4 *
+global ifls4hh "E:\IFLS\IFLS4\Household_Survey"
+global ifls4cf "E:\IFLS\IFLS4\Community_Survey"
+
+ * IFLS 3 *
+global ifls3hh "E:\IFLS\IFLS3\Household_Survey"
+global ifls3cf "E:\IFLS\IFLS3\Community_Survey"
+
+ * IFLS 2 *
+global ifls2hh "E:\IFLS\IFLS2\Household_Survey"
+global ifls2cf "E:\IFLS\IFLS2\Community_Survey"
+
+ * IFLS 1 *
+global ifls1hh "E:\IFLS\IFLS1\Household_Survey"
+global ifls1cf "E:\IFLS\IFLS1\Community_Survey"
+*==============================================================================*
+**** HTRACK
+use $ifls5hh\htrack, clear
+keep commid14 hhid14 sc01_14_14 sc02_14_14 sc03_14_14
+drop if sc01_14_14==. & sc02_14_14==. & sc03_14_14==.
+order sc01_14_14 sc02_14_14 sc03_14_14 commid14 hhid14
+ren sc01_14_14 prov
+ren sc02_14_14 kab
+ren sc03_14_14 kec
+sort prov kab kec
+
+*** KABUPATEN
+tostring kab, replace
+replace kab="ACEH BARAT" if prov==11 & kab=="7"
+replace kab="SUBULUSSALAM" if prov==11 & kab=="75"
+replace kab="NIAS" if prov==12 & kab=="1"
+replace kab="MANDAILING NATAL" if prov==12 & kab=="2"
+replace kab="TAPANULI SELATAN" if prov==12 & kab=="3"
+replace kab="TAPANULI TENGAH" if prov==12 & kab=="4"
+replace kab="TAPANULI UTARA" if prov==12 & kab=="5"
+replace kab="TOBA SAMOSIR" if prov==12 & kab=="6"
+replace kab="LABUHAN BATU" if prov==12 & kab=="7"
+replace kab="ASAHAN" if prov==12 & kab=="8"
+replace kab="SIMALUNGUN" if prov==12 & kab=="9"
+replace kab="DAIRI" if prov==12 & kab=="10"
+replace kab="KARO" if prov==12 & kab=="11"
+replace kab="DELI SERDANG" if prov==12 & kab=="12"
+replace kab="LANGKAT" if prov==12 & kab=="13"
+replace kab="NIAS SELATAN" if prov==12 & kab=="14"
+replace kab="HUMBANG HASUNDUTAN" if prov==12 & kab=="15"
+replace kab="PAKPAK BHARAT" if prov==12 & kab=="16"
+replace kab="SAMOSIR" if prov==12 & kab=="17"
+replace kab="SERDANG BEDAGAI" if prov==12 & kab=="18"
+replace kab="BATU BARA" if prov==12 & kab=="19"
+replace kab="PADANG LAWAS UTARA" if prov==12 & kab=="20"
+replace kab="PADANG LAWAS" if prov==12 & kab=="21"
+replace kab="LABUHAN BATU SELATAN" if prov==12 & kab=="22"
+replace kab="LABUHAN BATU UTARA" if prov==12 & kab=="23"
+replace kab="SIBOLGA" if prov==12 & kab=="71"
+replace kab="TANJUNG BALAI" if prov==12 & kab=="72"
+replace kab="PEMATANG SIANTAR" if prov==12 & kab=="73"
+replace kab="TEBING TINGGI" if prov==12 & kab=="74"
+replace kab="MEDAN" if prov==12 & kab=="75"
+replace kab="BINJAI" if prov==12 & kab=="76"
+replace kab="PADANGSIDIMPUAN" if prov==12 & kab=="77"
+replace kab="GUNUNGSITOLI" if prov==12 & kab=="78"
+replace kab="PESISIR SELATAN" if prov==13 & kab=="2"
+replace kab="SOLOK" if prov==13 & kab=="3"
+replace kab="SIJUNJUNG" if prov==13 & kab=="4"
+replace kab="TANAH DATAR" if prov==13 & kab=="5"
+replace kab="PADANG PARIAMAN" if prov==13 & kab=="6"
+replace kab="AGAM" if prov==13 & kab=="7"
+replace kab="LIMA PULUH KOTA" if prov==13 & kab=="8"
+replace kab="PASAMAN" if prov==13 & kab=="9"
+replace kab="SOLOK SELATAN" if prov==13 & kab=="10"
+replace kab="DHARMASRAYA" if prov==13 & kab=="11"
+replace kab="PASAMAN BARAT" if prov==13 & kab=="12"
+replace kab="PADANG" if prov==13 & kab=="71"
+replace kab="PADANG PANJANG" if prov==13 & kab=="74"
+replace kab="BUKITTINGGI" if prov==13 & kab=="75"
+replace kab="PAYAKUMBUH" if prov==13 & kab=="76"
+replace kab="PARIAMAN" if prov==13 & kab=="77"
+replace kab="KUANTAN SINGINGI" if prov==14 & kab=="1"
+replace kab="INDRAGIRI HULU" if prov==14 & kab=="2"
+replace kab="INDRAGIRI HILIR" if prov==14 & kab=="3"
+replace kab="PELALAWAN" if prov==14 & kab=="4"
+replace kab="S I A K" if prov==14 & kab=="5"
+replace kab="KAMPAR" if prov==14 & kab=="6"
+replace kab="ROKAN HULU" if prov==14 & kab=="7"
+replace kab="BENGKALIS" if prov==14 & kab=="8"
+replace kab="ROKAN HILIR" if prov==14 & kab=="9"
+replace kab="KEPULAUAN MERANTI" if prov==14 & kab=="10"
+replace kab="PEKANBARU" if prov==14 & kab=="71"
+replace kab="D U M A I" if prov==14 & kab=="73"
+replace kab="BATANG HARI" if prov==15 & kab=="4"
+replace kab="MUARO JAMBI" if prov==15 & kab=="5"
+replace kab="TANJUNG JABUNG TIMUR" if prov==15 & kab=="6"
+replace kab="TANJUNG JABUNG BARAT" if prov==15 & kab=="7"
+replace kab="BUNGO" if prov==15 & kab=="9"
+replace kab="JAMBI" if prov==15 & kab=="71"
+replace kab="OGAN KOMERING ULU" if prov==16 & kab=="1"
+replace kab="OGAN KOMERING ILIR" if prov==16 & kab=="2"
+replace kab="MUARA ENIM" if prov==16 & kab=="3"
+replace kab="LAHAT" if prov==16 & kab=="4"
+replace kab="MUSI RAWAS" if prov==16 & kab=="5"
+replace kab="MUSI BANYUASIN" if prov==16 & kab=="6"
+replace kab="BANYU ASIN" if prov==16 & kab=="7"
+replace kab="OGAN KOMERING ULU SELATAN" if prov==16 & kab=="8"
+replace kab="OGAN KOMERING ULU TIMUR" if prov==16 & kab=="9"
+replace kab="OGAN ILIR" if prov==16 & kab=="10"
+replace kab="EMPAT LAWANG" if prov==16 & kab=="11"
+replace kab="PENUKAL ABAB LEMATANG ILIR" if prov==16 & kab=="12"
+replace kab="PALEMBANG" if prov==16 & kab=="71"
+replace kab="PRABUMULIH" if prov==16 & kab=="72"
+replace kab="PAGAR ALAM" if prov==16 & kab=="73"
+replace kab="LUBUKLINGGAU" if prov==16 & kab=="74"
+replace kab="LAMPUNG BARAT" if prov==18 & kab=="1"
+replace kab="TANGGAMUS" if prov==18 & kab=="2"
+replace kab="LAMPUNG SELATAN" if prov==18 & kab=="3"
+replace kab="LAMPUNG TIMUR" if prov==18 & kab=="4"
+replace kab="LAMPUNG TENGAH" if prov==18 & kab=="5"
+replace kab="LAMPUNG UTARA" if prov==18 & kab=="6"
+replace kab="WAY KANAN" if prov==18 & kab=="7"
+replace kab="TULANGBAWANG" if prov==18 & kab=="8"
+replace kab="PESAWARAN" if prov==18 & kab=="9"
+replace kab="PRINGSEWU" if prov==18 & kab=="10"
+replace kab="MESUJI" if prov==18 & kab=="11"
+replace kab="TULANG BAWANG BARAT" if prov==18 & kab=="12"
+replace kab="BANDAR LAMPUNG" if prov==18 & kab=="71"
+replace kab="METRO" if prov==18 & kab=="72"
+replace kab="BANGKA" if prov==19 & kab=="1"
+replace kab="BELITUNG" if prov==19 & kab=="2"
+replace kab="BANGKA BARAT" if prov==19 & kab=="3"
+replace kab="BANGKA TENGAH" if prov==19 & kab=="4"
+replace kab="BANGKA SELATAN" if prov==19 & kab=="5"
+replace kab="PANGKAL PINANG" if prov==19 & kab=="71"
+replace kab="B A T A M" if prov==21 & kab=="71"
+replace kab="JAKARTA SELATAN" if prov==31 & kab=="71"
+replace kab="JAKARTA TIMUR" if prov==31 & kab=="72"
+replace kab="JAKARTA PUSAT" if prov==31 & kab=="73"
+replace kab="JAKARTA BARAT" if prov==31 & kab=="74"
+replace kab="JAKARTA UTARA" if prov==31 & kab=="75"
+replace kab="BOGOR" if prov==32 & kab=="1"
+replace kab="SUKABUMI" if prov==32 & kab=="2"
+replace kab="CIANJUR" if prov==32 & kab=="3"
+replace kab="BANDUNG" if prov==32 & kab=="4"
+replace kab="GARUT" if prov==32 & kab=="5"
+replace kab="TASIKMALAYA" if prov==32 & kab=="6"
+replace kab="CIAMIS" if prov==32 & kab=="7"
+replace kab="KUNINGAN" if prov==32 & kab=="8"
+replace kab="CIREBON" if prov==32 & kab=="9"
+replace kab="MAJALENGKA" if prov==32 & kab=="10"
+replace kab="SUMEDANG" if prov==32 & kab=="11"
+replace kab="INDRAMAYU" if prov==32 & kab=="12"
+replace kab="SUBANG" if prov==32 & kab=="13"
+replace kab="PURWAKARTA" if prov==32 & kab=="14"
+replace kab="KARAWANG" if prov==32 & kab=="15"
+replace kab="BEKASI" if prov==32 & kab=="16"
+replace kab="BANDUNG BARAT" if prov==32 & kab=="17"
+replace kab="PANGANDARAN" if prov==32 & kab=="18"
+replace kab="BOGOR" if prov==32 & kab=="71"
+replace kab="SUKABUMI" if prov==32 & kab=="72"
+replace kab="BANDUNG" if prov==32 & kab=="73"
+replace kab="CIREBON" if prov==32 & kab=="74"
+replace kab="BEKASI" if prov==32 & kab=="75"
+replace kab="DEPOK" if prov==32 & kab=="76"
+replace kab="CIMAHI" if prov==32 & kab=="77"
+replace kab="TASIKMALAYA" if prov==32 & kab=="78"
+replace kab="CILACAP" if prov==33 & kab=="1"
+replace kab="BANYUMAS" if prov==33 & kab=="2"
+replace kab="PURBALINGGA" if prov==33 & kab=="3"
+replace kab="BANJARNEGARA" if prov==33 & kab=="4"
+replace kab="KEBUMEN" if prov==33 & kab=="5"
+replace kab="PURWOREJO" if prov==33 & kab=="6"
+replace kab="WONOSOBO" if prov==33 & kab=="7"
+replace kab="MAGELANG" if prov==33 & kab=="8"
+replace kab="BOYOLALI" if prov==33 & kab=="9"
+replace kab="KLATEN" if prov==33 & kab=="10"
+replace kab="SUKOHARJO" if prov==33 & kab=="11"
+replace kab="WONOGIRI" if prov==33 & kab=="12"
+replace kab="KARANGANYAR" if prov==33 & kab=="13"
+replace kab="SRAGEN" if prov==33 & kab=="14"
+replace kab="GROBOGAN" if prov==33 & kab=="15"
+replace kab="BLORA" if prov==33 & kab=="16"
+replace kab="REMBANG" if prov==33 & kab=="17"
+replace kab="PATI" if prov==33 & kab=="18"
+replace kab="KUDUS" if prov==33 & kab=="19"
+replace kab="JEPARA" if prov==33 & kab=="20"
+replace kab="DEMAK" if prov==33 & kab=="21"
+replace kab="SEMARANG" if prov==33 & kab=="22"
+replace kab="TEMANGGUNG" if prov==33 & kab=="23"
+replace kab="KENDAL" if prov==33 & kab=="24"
+replace kab="BATANG" if prov==33 & kab=="25"
+replace kab="PEKALONGAN" if prov==33 & kab=="26"
+replace kab="PEMALANG" if prov==33 & kab=="27"
+replace kab="TEGAL" if prov==33 & kab=="28"
+replace kab="BREBES" if prov==33 & kab=="29"
+replace kab="MAGELANG" if prov==33 & kab=="71"
+replace kab="SURAKARTA" if prov==33 & kab=="72"
+replace kab="SALATIGA" if prov==33 & kab=="73"
+replace kab="SEMARANG" if prov==33 & kab=="74"
+replace kab="PEKALONGAN" if prov==33 & kab=="75"
+replace kab="TEGAL" if prov==33 & kab=="76"
+replace kab="KULON PROGO" if prov==34 & kab=="1"
+replace kab="BANTUL" if prov==34 & kab=="2"
+replace kab="GUNUNG KIDUL" if prov==34 & kab=="3"
+replace kab="SLEMAN" if prov==34 & kab=="4"
+replace kab="YOGYAKARTA" if prov==34 & kab=="71"
+replace kab="PACITAN" if prov==35 & kab=="1"
+replace kab="PONOROGO" if prov==35 & kab=="2"
+replace kab="TRENGGALEK" if prov==35 & kab=="3"
+replace kab="TULUNGAGUNG" if prov==35 & kab=="4"
+replace kab="BLITAR" if prov==35 & kab=="5"
+replace kab="KEDIRI" if prov==35 & kab=="6"
+replace kab="MALANG" if prov==35 & kab=="7"
+replace kab="LUMAJANG" if prov==35 & kab=="8"
+replace kab="JEMBER" if prov==35 & kab=="9"
+replace kab="BANYUWANGI" if prov==35 & kab=="10"
+replace kab="BONDOWOSO" if prov==35 & kab=="11"
+replace kab="SITUBONDO" if prov==35 & kab=="12"
+replace kab="PROBOLINGGO" if prov==35 & kab=="13"
+replace kab="PASURUAN" if prov==35 & kab=="14"
+replace kab="SIDOARJO" if prov==35 & kab=="15"
+replace kab="MOJOKERTO" if prov==35 & kab=="16"
+replace kab="JOMBANG" if prov==35 & kab=="17"
+replace kab="NGANJUK" if prov==35 & kab=="18"
+replace kab="MADIUN" if prov==35 & kab=="19"
+replace kab="MAGETAN" if prov==35 & kab=="20"
+replace kab="NGAWI" if prov==35 & kab=="21"
+replace kab="BOJONEGORO" if prov==35 & kab=="22"
+replace kab="TUBAN" if prov==35 & kab=="23"
+replace kab="LAMONGAN" if prov==35 & kab=="24"
+replace kab="GRESIK" if prov==35 & kab=="25"
+replace kab="BANGKALAN" if prov==35 & kab=="26"
+replace kab="SAMPANG" if prov==35 & kab=="27"
+replace kab="PAMEKASAN" if prov==35 & kab=="28"
+replace kab="SUMENEP" if prov==35 & kab=="29"
+replace kab="KEDIRI" if prov==35 & kab=="71"
+replace kab="BLITAR" if prov==35 & kab=="72"
+replace kab="MALANG" if prov==35 & kab=="73"
+replace kab="PROBOLINGGO" if prov==35 & kab=="74"
+replace kab="PASURUAN" if prov==35 & kab=="75"
+replace kab="MOJOKERTO" if prov==35 & kab=="76"
+replace kab="MADIUN" if prov==35 & kab=="77"
+replace kab="SURABAYA" if prov==35 & kab=="78"
+replace kab="BATU" if prov==35 & kab=="79"
+replace kab="PANDEGLANG" if prov==36 & kab=="1"
+replace kab="LEBAK" if prov==36 & kab=="2"
+replace kab="TANGERANG" if prov==36 & kab=="3"
+replace kab="SERANG" if prov==36 & kab=="4"
+replace kab="TANGERANG" if prov==36 & kab=="71"
+replace kab="CILEGON" if prov==36 & kab=="72"
+replace kab="SERANG" if prov==36 & kab=="73"
+replace kab="TANGERANG SELATAN" if prov==36 & kab=="74"
+replace kab="JEMBRANA" if prov==51 & kab=="1"
+replace kab="TABANAN" if prov==51 & kab=="2"
+replace kab="BADUNG" if prov==51 & kab=="3"
+replace kab="GIANYAR" if prov==51 & kab=="4"
+replace kab="KLUNGKUNG" if prov==51 & kab=="5"
+replace kab="BANGLI" if prov==51 & kab=="6"
+replace kab="KARANG ASEM" if prov==51 & kab=="7"
+replace kab="BULELENG" if prov==51 & kab=="8"
+replace kab="DENPASAR" if prov==51 & kab=="71"
+replace kab="LOMBOK BARAT" if prov==52 & kab=="1"
+replace kab="LOMBOK TENGAH" if prov==52 & kab=="2"
+replace kab="LOMBOK TIMUR" if prov==52 & kab=="3"
+replace kab="SUMBAWA" if prov==52 & kab=="4"
+replace kab="DOMPU" if prov==52 & kab=="5"
+replace kab="BIMA" if prov==52 & kab=="6"
+replace kab="SUMBAWA BARAT" if prov==52 & kab=="7"
+replace kab="LOMBOK UTARA" if prov==52 & kab=="8"
+replace kab="MATARAM" if prov==52 & kab=="71"
+replace kab="BIMA" if prov==52 & kab=="72"
+replace kab="KETAPANG" if prov==61 & kab=="6"
+replace kab="KOTAWARINGIN BARAT" if prov==62 & kab=="1"
+replace kab="KOTAWARINGIN TIMUR" if prov==62 & kab=="2"
+replace kab="LAMANDAU" if prov==62 & kab=="7"
+replace kab="SERUYAN" if prov==62 & kab=="8"
+replace kab="KATINGAN" if prov==62 & kab=="9"
+replace kab="BARITO TIMUR" if prov==62 & kab=="12"
+replace kab="PALANGKA RAYA" if prov==62 & kab=="71"
+replace kab="TANAH LAUT" if prov==63 & kab=="1"
+replace kab="KOTA BARU" if prov==63 & kab=="2"
+replace kab="BANJAR" if prov==63 & kab=="3"
+replace kab="BARITO KUALA" if prov==63 & kab=="4"
+replace kab="TAPIN" if prov==63 & kab=="5"
+replace kab="HULU SUNGAI TENGAH" if prov==63 & kab=="7"
+replace kab="HULU SUNGAI UTARA" if prov==63 & kab=="8"
+replace kab="TABALONG" if prov==63 & kab=="9"
+replace kab="TANAH BUMBU" if prov==63 & kab=="10"
+replace kab="BALANGAN" if prov==63 & kab=="11"
+replace kab="BANJARMASIN" if prov==63 & kab=="71"
+replace kab="BANJAR BARU" if prov==63 & kab=="72"
+replace kab="PASER" if prov==64 & kab=="1"
+replace kab="KUTAI BARAT" if prov==64 & kab=="2"
+replace kab="KUTAI KARTANEGARA" if prov==64 & kab=="3"
+replace kab="KUTAI TIMUR" if prov==64 & kab=="4"
+replace kab="BERAU" if prov==64 & kab=="5"
+replace kab="PENAJAM PASER UTARA" if prov==64 & kab=="9"
+replace kab="BALIKPAPAN" if prov==64 & kab=="71"
+replace kab="SAMARINDA" if prov==64 & kab=="72"
+replace kab="BONTANG" if prov==64 & kab=="74"
+replace kab="BULUKUMBA" if prov==73 & kab=="2"
+replace kab="BANTAENG" if prov==73 & kab=="3"
+replace kab="JENEPONTO" if prov==73 & kab=="4"
+replace kab="TAKALAR" if prov==73 & kab=="5"
+replace kab="GOWA" if prov==73 & kab=="6"
+replace kab="SINJAI" if prov==73 & kab=="7"
+replace kab="MAROS" if prov==73 & kab=="8"
+replace kab="BARRU" if prov==73 & kab=="10"
+replace kab="BONE" if prov==73 & kab=="11"
+replace kab="SOPPENG" if prov==73 & kab=="12"
+replace kab="WAJO" if prov==73 & kab=="13"
+replace kab="SIDENRENG RAPPANG" if prov==73 & kab=="14"
+replace kab="PINRANG" if prov==73 & kab=="15"
+replace kab="ENREKANG" if prov==73 & kab=="16"
+replace kab="LUWU" if prov==73 & kab=="17"
+replace kab="TANA TORAJA" if prov==73 & kab=="18"
+replace kab="LUWU UTARA" if prov==73 & kab=="22"
+replace kab="LUWU TIMUR" if prov==73 & kab=="25"
+replace kab="TORAJA UTARA" if prov==73 & kab=="26"
+replace kab="MAKASSAR" if prov==73 & kab=="71"
+replace kab="PAREPARE" if prov==73 & kab=="72"
+replace kab="PALOPO" if prov==73 & kab=="73"
+replace kab="POLEWALI MANDAR" if prov==76 & kab=="2"
+replace kab="MAMASA" if prov==76 & kab=="3"
+replace kab="MAMUJU" if prov==76 & kab=="4"
+replace kab="MAMUJU UTARA" if prov==76 & kab=="5"
+replace kab="MAMUJU TENGAH" if prov==76 & kab=="6"
+replace kab="SORONG" if prov==91 & kab=="71"
+
+
+*** PROVINSI
+tostring prov, replace
+replace prov="NANGGROE ACEH DARUSSALAM" if prov=="11"
+replace prov="SUMATERA UTARA" if prov=="12"
+replace prov="SUMATERA BARAT" if prov=="13"
+replace prov="RIAU" if prov=="14"
+replace prov="JAMBI" if prov=="15"
+replace prov="SUMATERA SELATAN" if prov=="16"
+replace prov="BENGKULU" if prov=="17"
+replace prov="LAMPUNG" if prov=="18"
+replace prov="KEPULAUAN BANGKA DAN BELITUNG" if prov=="19"
+replace prov="KEPULAUAN RIAU" if prov=="21"
+replace prov="DKI JAKARTA" if prov=="31"
+replace prov="JAWA BARAT" if prov=="32"
+replace prov="JAWA TENGAH" if prov=="33"
+replace prov="DI YOGYAKARTA" if prov=="34"
+replace prov="JAWA TIMUR" if prov=="35"
+replace prov="BANTEN" if prov=="36"
+replace prov="BALI" if prov=="51"
+replace prov="NUSA TENGGARA BARAT" if prov=="52"
+replace prov="NUSA TENGGARA TIMUR" if prov=="53"
+replace prov="KALIMANTAN BARAT" if prov=="61"
+replace prov="KALIMANTAN TENGAH" if prov=="62"
+replace prov="KALIMANTAN SELATAN" if prov=="63"
+replace prov="KALIMANTAN TIMUR" if prov=="64"
+replace prov="SULAWESI UTARA" if prov=="71"
+replace prov="SULAWESI TENGAH" if prov=="72"
+replace prov="SULAWESI SELATAN" if prov=="73"
+replace prov="SULAWESI TENGGARA" if prov=="74"
+replace prov="GORONTALO" if prov=="75"
+replace prov="SULAWESI BARAT" if prov=="76"
+replace prov="MALUKU" if prov=="81"
+replace prov="MALUKU UTARA" if prov=="82"
+replace prov="PAPUA BARAT" if prov=="91"
+replace prov="PAPUA" if prov=="94"
+
+
+**** BOOK SC ****
+merge 1:m hhid14 using $ifls5hh\bk_sc1
+keep prov-hhid14 sc05
+
+*** Urban/Rural
+tab sc05, gen (sc)
+drop sc05
+ren sc1 urban
+lab var urban "Urban"
+ren sc2 rural
+lab var rural "Rural"
+tempfile sc
+save `sc'
+
+
+**** BOOK K ****
+use $ifls5hh\bk_ar1, clear
+keep pidlink hhid14 pid14 ar01a ar02b ar07 ar09 ar13 ar15 ar15d ar16 ar17 ar18d ar18h
+order pidlink hhid14 pid14
+sort hhid14 pid14
+
+*** Household Size
+drop if ar18d==0
+drop if ar18h==3
+recode ar01a (1 2 5 11 = 1)
+by hhid14: egen hhsize=count(pid14) if ar01a==1
+lab var hhsize "Household size"
+gen hhsizesq=(hhsize)^2
+lab var hhsizesq "Household size squared"
+drop ar01a
+drop ar18d
+drop ar18h
+
+*** Sex
+tab ar07, gen (sex)
+drop ar07
+ren sex1 male
+lab var male "Male"
+ren sex2 female
+lab var female "Female"
+
+*** Age
+ren ar09 age
+gen agesq=(age)^2
+lab var agesq "Age squared"
+
+*** Marital Status
+recode ar13 (6 8 9 = .)(1 4 5 = 1)
+tab ar13, gen (marr)
+drop ar13
+ren marr1 unmarried
+lab var unmarried "marital status: unmarried"
+ren marr2 married
+lab var married "marital status: married"
+ren marr3 separated
+lab var separated "marital status: separated"
+
+*** Religion
+recode ar15 (95 99 =.)
+tab ar15, gen (rel)
+drop ar15
+ren rel1 islam
+lab var islam "Religion: Islam"
+ren rel2 protestant
+lab var protestant "Religion: Protestant"
+ren rel3 catholic
+lab var catholic "Religion: Catholic"
+ren rel4 hinduism
+lab var hinduism "Religion: Hinduism"
+ren rel5 buddhism
+lab var buddhism "Religion: Buddhism"
+ren rel6 konghucu
+lab var konghucu "Religion: Konghucu"
+
+*** Education Dummy
+drop if ar16==99
+recode ar16 (2 11 72 = 2)
+recode ar16 (3 4 12 73 = 3)
+recode ar16 (5 6 15 74 = 5)
+recode ar16 (1 90 = 1)
+recode ar16 (98 14 17 = 95)
+recode ar16 (13 60 61 = 13)
+recode ar16 (62 = 14)
+recode ar16 (63 = 15)
+
+replace ar16=1 if ar16==2 & ar17!=7
+replace ar16=2 if ar16==3 & ar17!=7
+replace ar16=3 if ar16==5 & ar17!=7
+replace ar16=5 if ar16==13 & ar17!=7
+replace ar16=13 if ar16==14 & ar17!=7
+replace ar16=14 if ar16==15 & ar17!=7
+
+recode ar16 (13 14 15 = 13)
+
+tab ar16, gen (educ)
+lab var educ1 "Unschooled"
+ren educ1 noschool
+lab var educ2 "Primary school"
+ren educ2 primary
+lab var educ3 "Junior high school"
+ren educ3 junior_school
+lab var educ4 "Senior high school"
+ren educ4 high_school
+lab var educ5 "University"
+ren educ5 university
+lab var educ6 "Other education"
+ren educ6 other_educ
+drop ar16 ar17
+
+merge m:1 hhid14 using `sc'
+drop _merge
+
+order agesq, after(age)
+order urban rural, after(ar15d)
+order prov kab kec commid14, first
+
+**** BOOK 3A ****
+merge 1:1 hhid14 pid14 using $ifls5hh\b3a_dl1
+drop if _merge!=3
+drop _merge
+keep prov-other_educ dl01f dl01g dl01h dl01e dl07
+
+
+*** Years of schooling
+merge 1:m hhid14 pid14 using $ifls5hh\b3a_dl4
+drop if _merge!=3
+drop _merge
+keep prov-other_educ dl4type dl11a dl11c dl11fx dl11f dlp11gx dl11g
+replace dl11a=. if dl11a==9998
+replace dl11a=. if dl11a==9999
+replace dl11c=. if dl11f==9998
+replace dl11c=. if dl11f==9999
+replace dl11f=. if dl11f==9998
+replace dl11f=. if dl11f==9999
+sort pidlink
+
+* Elementary
+gen ysd=1 if dl4type==1 & dl11c==1
+replace ysd=2 if dl4type==1 & dl11c==2
+replace ysd=3 if dl4type==1 & dl11c==3
+replace ysd=4 if dl4type==1 & dl11c==4
+replace ysd=5 if dl4type==1 & dl11c==5
+replace ysd=6 if dl4type==1 & dl11c==6
+replace ysd=(dl11f-(dl11a-1)) if dl4type==1 & dl11c==7
+drop if ysd<0 & dl4type==1
+drop if dl11f==. & dl11a==.
+
+* Junior High School
+replace ysd=1 if dl4type==2 & dl11c==1
+replace ysd=2 if dl4type==2 & dl11c==2
+replace ysd=3 if dl4type==2 & dl11c==3
+replace ysd=(dl11f-(dl11a-1)) if dl4type==2 & dl11c==7
+drop if ysd<0 & dl4type==2
+
+* Senior High School
+replace ysd=1 if dl4type==3 & dl11c==1
+replace ysd=2 if dl4type==3 & dl11c==2
+replace ysd=3 if dl4type==3 & dl11c==3
+replace ysd=(dl11f-(dl11a-1)) if dl4type==3 & dl11c==7
+drop if ysd<0 & dl4type==3
+
+* University/College
+replace ysd=1 if dl4type==1 & dl11c==1
+replace ysd=2 if dl4type==4 & dl11c==2
+replace ysd=3 if dl4type==4 & dl11c==3
+replace ysd=4 if dl4type==4 & dl11c==4
+replace ysd=5 if dl4type==4 & dl11c==5
+replace ysd=6 if dl4type==4 & dl11c==6
+replace ysd=(dl11f-(dl11a-1)) if dl4type==4 & dl11c==7
+drop if ysd<0 & dl4type==4
+
+** Total years of schooling
+drop if dl11c==7 & dl11f==.
+drop if dl11c==7 & dl11a==.
+sort pidlink dl4type
+bys pidlink: gen educ=sum(ysd)
+lab var educ "Years of schooling"
+bys pidlink: keep if dl4type==_N
+drop dl4type-ysd
+
+
+*** Trust & Social Capital
+merge 1:1 hhid14 pid14 using $ifls5hh\b3a_tr
+drop if _merge!=3
+drop _merge
+
+keep prov-educ tr03 tr11 tr12 tr23 tr24 tr25 tr28 tr29a
+sort commid14 hhid14 pid14
+
+recode tr11 (7 = .)(4 = 40)(3 = 30)(2 = 20)(1 = 10)
+recode tr11 (40 = 0)(30 = 1)(20 = 2)(10 = 3)
+label define tr11 0 "0. Not religious", add
+label define tr11 1 "1. Rather religious", modify
+label define tr11 2 "2. Somewhat religious", modify
+label define tr11 3 "3. Very religious", modify
+ren tr11 religiosity
+
+recode tr23 (1 = 10)(2 = 20)(3 = 30)(4 = 40)
+recode tr23 (40 = 0)(30 = 1)(20 = 2)(10 = 3)
+label define tr23 0 "0. Strongly disagree", add
+label define tr23 1 "1. Disagree", modify
+label define tr23 2 "2. Agree", modify
+label define tr23 3 "3. Strongly agree", modify
+ren tr23 reltrust
+
+recode tr24 (1 = 10)(2 = 20)(3 = 30)(4 = 40)
+recode tr24 (40 = 0)(30 = 1)(20 = 2)(10 = 3)
+label define tr24 0 "0. No objection at all", add
+label define tr24 1 "1. No objection", modify
+label define tr24 2 "2. Objected", modify
+label define tr24 3 "3. Strongly objected", modify
+ren tr24 difvil
+
+recode tr25 (1 = 10)(2 = 20)(3 = 30)(4 = 40)
+recode tr25 (40 = 0)(30 = 1)(20 = 2)(10 = 3)
+label define tr25 0 "0. No objection at all", add
+label define tr25 1 "1. No objection", modify
+label define tr25 2 "2. Objected", modify
+label define tr25 3 "3. Strongly objected", modify
+ren tr25 difneigh
+
+recode tr28 (1 = 10)(2 = 20)(3 = 30)(4 = 40)
+recode tr28 (40 = 0)(30 = 1)(20 = 2)(10 = 3)
+label define tr28 0 "0. No objection at all", add
+label define tr28 1 "1. No objection", modify
+label define tr28 2 "2. Objected", modify
+label define tr28 3 "3. Strongly objected", modify
+ren tr28 difwor
+
+
+*** Dependent Variable: having a candidate with the same religion as yours makes it to vote for him/her.
+recode tr29a (1 = 10)(2 = 20)(3 = 30)(4 = 40)(5 = 50)(6 = .)
+recode tr29a (50 = 0)(40 = 1)(30 = 2)(20 = 3)(10 = 4)
+recode tr29a (0 1 = 0)(2 = 1)(3 4 = 2)
+label define tr29a 0 "0. Unlikely", add
+label define tr29a 1 "1. Neither more or less likely", modify
+label define tr29a 2 "2. Likely", modify
+
+
+
+*** Religion: are you part of majority? (BPS's 2010 Census Data)
+gen fmreligion=1 if prov=="NANGGROE ACEH DARUSSALAM" & tr12==1
+replace fmreligion=1 if prov=="SUMATERA UTARA" & tr12==1
+replace fmreligion=1 if prov=="SUMATERA BARAT" & tr12==1
+replace fmreligion=1 if prov=="RIAU" & tr12==1
+replace fmreligion=1 if prov=="JAMBI" & tr12==1
+replace fmreligion=1 if prov=="SUMATERA SELATAN" & tr12==1
+replace fmreligion=1 if prov=="BENGKULU" & tr12==1
+replace fmreligion=1 if prov=="LAMPUNG" & tr12==1
+replace fmreligion=1 if prov=="KEPULAUAN BANGKA DAN BELITUNG" & tr12==1
+replace fmreligion=1 if prov=="KEPULAUAN RIAU" & tr12==1
+replace fmreligion=1 if prov=="DKI JAKARTA" & tr12==1
+replace fmreligion=1 if prov=="JAWA BARAT" & tr12==1
+replace fmreligion=1 if prov=="JAWA TENGAH" & tr12==1
+replace fmreligion=1 if prov=="DI YOGYAKARTA" & tr12==1
+replace fmreligion=1 if prov=="JAWA TIMUR" & tr12==1
+replace fmreligion=1 if prov=="BANTEN" & tr12==1
+replace fmreligion=1 if prov=="BALI" & tr12==4
+replace fmreligion=1 if prov=="NUSA TENGGARA BARAT" & tr12==1
+replace fmreligion=1 if prov=="NUSA TENGGARA TIMUR" & tr12==2
+replace fmreligion=1 if prov=="KALIMANTAN BARAT" & tr12==1
+replace fmreligion=1 if prov=="KALIMANTAN TENGAH" & tr12==1
+replace fmreligion=1 if prov=="KALIMANTAN SELATAN" & tr12==1
+replace fmreligion=1 if prov=="KALIMANTAN TIMUR" & tr12==1
+replace fmreligion=1 if prov=="SULAWESI UTARA" & tr12==3
+replace fmreligion=1 if prov=="SULAWESI TENGAH" & tr12==1
+replace fmreligion=1 if prov=="SULAWESI SELATAN" & tr12==1
+replace fmreligion=1 if prov=="SULAWESI TENGGARA" & tr12==1
+replace fmreligion=1 if prov=="GORONTALO" & tr12==1
+replace fmreligion=1 if prov=="SULAWESI BARAT" & tr12==1
+replace fmreligion=1 if prov=="MALUKU" & tr12==1
+replace fmreligion=1 if prov=="MALUKU UTARA" & tr12==1
+replace fmreligion=1 if prov=="PAPUA BARAT" & tr12==3
+replace fmreligion=1 if prov=="PAPUA" & tr12==3
+replace fmreligion=0 if fmreligion==.
+lab var fmreligion "(Province) By religion, are you part of the majority?"
+
+*** Religion: are you part of second majority? (BPS's 2010 Census Data)
+gen smreligion=1 if prov=="NANGGROE ACEH DARUSSALAM" & tr12==3
+replace smreligion=1 if prov=="SUMATERA UTARA" & tr12==3
+replace smreligion=1 if prov=="SUMATERA BARAT" & tr12==3
+replace smreligion=1 if prov=="RIAU" & tr12==3
+replace smreligion=1 if prov=="JAMBI" & tr12==3
+replace smreligion=1 if prov=="SUMATERA SELATAN" & tr12==3
+replace smreligion=1 if prov=="BENGKULU" & tr12==3
+replace smreligion=1 if prov=="LAMPUNG" & tr12==3
+replace smreligion=1 if prov=="KEPULAUAN BANGKA DAN BELITUNG" & tr12==5
+replace smreligion=1 if prov=="KEPULAUAN RIAU" & tr12==3
+replace smreligion=1 if prov=="DKI JAKARTA" & tr12==3
+replace smreligion=1 if prov=="JAWA BARAT" & tr12==3
+replace smreligion=1 if prov=="JAWA TENGAH" & tr12==3
+replace smreligion=1 if prov=="DI YOGYAKARTA" & tr12==2
+replace smreligion=1 if prov=="JAWA TIMUR" & tr12==3
+replace smreligion=1 if prov=="BANTEN" & tr12==3
+replace smreligion=1 if prov=="BALI" & tr12==1
+replace smreligion=1 if prov=="NUSA TENGGARA BARAT" & tr12==4
+replace smreligion=1 if prov=="NUSA TENGGARA TIMUR" & tr12==3
+replace smreligion=1 if prov=="KALIMANTAN BARAT" & tr12==2
+replace smreligion=1 if prov=="KALIMANTAN TENGAH" & tr12==3
+replace smreligion=1 if prov=="KALIMANTAN SELATAN" & tr12==3
+replace smreligion=1 if prov=="KALIMANTAN TIMUR" & tr12==3
+replace smreligion=1 if prov=="SULAWESI UTARA" & tr12==1
+replace smreligion=1 if prov=="SULAWESI TENGAH" & tr12==3
+replace smreligion=1 if prov=="SULAWESI SELATAN" & tr12==3
+replace smreligion=1 if prov=="SULAWESI TENGGARA" & tr12==4
+replace smreligion=1 if prov=="GORONTALO" & tr12==3
+replace smreligion=1 if prov=="SULAWESI BARAT" & tr12==3
+replace smreligion=1 if prov=="MALUKU" & tr12==3
+replace smreligion=1 if prov=="MALUKU UTARA" & tr12==3
+replace smreligion=1 if prov=="PAPUA BARAT" & tr12==1
+replace smreligion=1 if prov=="PAPUA" & tr12==2
+replace smreligion=0 if smreligion==.
+lab var smreligion "(Province) By religion, are you part of the second majority?"
+
+*** Religion: are you part of minority? (BPS's 2010 Census Data)
+gen minreligion=1 if fmreligion==0 & smreligion==0
+replace minreligion=0 if minreligion==.
+lab var minreligion "(Province) By religion, are you part of the minority?"
+
+sort prov kab kec hhid14 pid14
+
+
+*** Income
+
+
+*----------------------------------*
+*** ESTIMATION ***
+*----------------------------------*
+ren tr29 vote
+/*
+outreg2 using "E:\Google Drive\My Papers\Trust\tabulation.doc", replace sum(log) ///
+keep(hhid14 pidlink urban rural male female islam protestant catholic hinduism buddhism konghucu noschool primary junior_school high_school university other_educ)
+
+
+/*
+* Model 1
+mlogit vote urban age agesq male married separated islam ///
+primary junior_school high_school university other_educ educ ///
+religiosity reltrust difvil difneigh fmreligion smreligion
+mfx, predict(p outcome(0))
+outreg2 using "$output\marginaltrust2.doc", se ctitle(different belief) excel replace mfx
+mfx, predict(p outcome(1))
+outreg2 using "$output\marginaltrust2.doc", se ctitle(neutral) excel append mfx
+mfx, predict(p outcome(2))
+outreg2 using "$output\marginaltrust2.doc", se ctitle(same belief) excel append mfx
+
+* Model 2
+mlogit vote urban age agesq male married separated protestant catholic hinduism ///
+buddhism konghucu primary junior_school high_school university other_educ educ ///
+religiosity reltrust difvil difneigh fmreligion smreligion
+mfx, predict(p outcome(0))
+outreg2 using "$output\marginaltrust.doc", se ctitle(different belief) excel replace mfx
+mfx, predict(p outcome(1))
+outreg2 using "$output\marginaltrust.doc", se ctitle(neutral) excel append mfx
+mfx, predict(p outcome(2))
+outreg2 using "$output\marginaltrust.doc", se ctitle(same belief) excel append mfx
